@@ -6,7 +6,6 @@ import {
   CardHeader,
   CardTitle,
   CardContent,
-  CardDescription
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -14,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import Link from "next/link";
 import { materias } from "@/lib/materias";
-import { CalendarIcon, ChevronLeftIcon, FileTextIcon, Link2Icon, VideoIcon } from "lucide-react";
+import { ChevronLeftIcon, FileTextIcon, Link2Icon, VideoIcon } from "lucide-react";
 import calculateProgress from "@/hooks/calculateProgress";
 
 export default function PaginaMateria ({ params }) {
@@ -30,9 +29,9 @@ export default function PaginaMateria ({ params }) {
 
       <main className="py-8 px-10">
         <header className="mb-8">
-          <div className="flex justify-between items-center gap-4">
+          <div className="flex flex-col-reverse items-start lg:items-center lg:flex-row justify-between gap-4">
             <h1 className="text-3xl font-bold tracking-tight">{materia.name}</h1>
-            <Button asChild variant="ghost" size="sm">
+            <Button className='p-0 md:p-2' asChild variant="ghost" size="sm">
               <Link href="/">
                 <ChevronLeftIcon className="mr-2 h-4 w-4" />
                 Volver al Dashboard
@@ -51,7 +50,7 @@ export default function PaginaMateria ({ params }) {
               </CardHeader>
               <CardContent>
                 <Progress value={progress} className="h-3" />
-                <div className="mt-4 grid grid-cols-3 gap-4">
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Horario</p>
                     <p className="font-medium">{materia.schedule}</p>
@@ -98,7 +97,7 @@ export default function PaginaMateria ({ params }) {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Recursos del Curso</CardTitle>
+                <CardTitle>Recursos de la materia</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {materia.resources.map((resource) => (

@@ -1,15 +1,9 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Progress } from "@/components/ui/progress"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
-  LayoutDashboard,
-  BookOpen,
   CalendarDays,
-  ClipboardList,
-  MessageSquare,
-  Settings,
   PiggyBank
 } from "lucide-react"
 import Link from "next/link"
@@ -36,48 +30,17 @@ export default function Dashboard () {
 
   return (
     <div className="min-h-screen bg-muted/40">
-      {/* Sidebar */}
-      {/* <aside className="fixed inset-y-0 left-0 w-64 bg-background border-r">
-        <div className="p-6">
-          <h2 className="text-lg font-semibold tracking-tight flex items-center gap-2">
-            <LayoutDashboard className="h-5 w-5" /> Dashboard
-          </h2>
-        </div>
-        <nav className="px-4 space-y-1">
-          <Button variant="ghost" className="w-full justify-start gap-2">
-            <BookOpen className="h-4 w-4" />
-            Materias del cuatri
-          </Button>
-          <Button variant="ghost" className="w-full justify-start gap-2">
-            <ClipboardList className="h-4 w-4" />
-            Tareas
-          </Button>
-          <Button variant="ghost" className="w-full justify-start gap-2">
-            <CalendarDays className="h-4 w-4" />
-            Calendario
-          </Button>
-          <Button variant="ghost" className="w-full justify-start gap-2">
-            <MessageSquare className="h-4 w-4" />
-            Foros
-          </Button>
-          <Button variant="ghost" className="w-full justify-start gap-2">
-            <Settings className="h-4 w-4" />
-            Configuración
-          </Button>
-        </nav>
-      </aside> */}
-
       {/* Main Content */}
-      <main className="py-8 px-10">
+      <main className="py-8 px-4 lg:px-10">
         {/* Header */}
-        <header className="flex justify-between items-center mb-8">
+        <header className="flex flex-col lg:flex-row justify-between items-center mb-8 ">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Bienvenidos, Tuppers!</h1>
             <p className="text-muted-foreground">
               {fechaFormateada}
             </p>
           </div>
-          <div className="flex gap-4">
+          <div className="flex flex-col lg:flex-row gap-4">
             <Card>
               <CardContent className="flex flex-row gap-2 pt-4">
                 <Link target="_blank" href={nextExams[0].urlConsigna} className="flex items-left gap-2 items-start justify-between">
@@ -132,15 +95,15 @@ export default function Dashboard () {
         </section>
 
         {/* Calendar and Quick Links */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 items-start gap-4">
           {/* Calendario */}
-          <Card className="lg:col-span-2">
+          <Card className="flex flex-col justify-center lg:col-span-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CalendarDays className="h-5 w-5" /> Calendario Académico
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex p-2 flex-wrap flex-col xl:flex-row items-center justify-start w-full">
               <CustomCalendar />
             </CardContent>
           </Card>

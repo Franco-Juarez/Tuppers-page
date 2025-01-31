@@ -86,3 +86,19 @@
     --chart-5: 340 75% 55%;
   }
 }
+
+.exam-day:hover::after {
+  content: attr(data-exam-title);
+  font-size: 12px;
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  background: #ef4444;
+  border-radius: 4px;
+  padding: 6px 8px;
+  white-space: nowrap;
+  z-index: 10;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+}
