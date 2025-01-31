@@ -17,34 +17,32 @@ import {
 
 import useBitcoinPrice from '@/hooks/calculatePrice';
 
-// Función para generar datos ficticios
-function generateFakeData () {
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
-  ];
-  return months.map((month, index) => ({
-    month,
-    Cuota: 75 + index * 0.27, // Incremento ficticio en la cuota
-    Bitcoin: 5 + index * 43, // Incremento ficticio del precio de Bitcoin
-  }));
-}
-
 export function PriceChart () {
-  const [chartData, setChartData] = useState(generateFakeData());
+  const [chartData, setChartData] = useState([]);
   const [trend, setTrend] = useState(0);
-  const bitcoinPrice = useBitcoinPrice() || 20000;
+  const bitcoinPriceData = useBitcoinPrice();
 
   useEffect(() => {
-    // Generar datos dinámicamente para 12 meses usando un valor fijo de Bitcoin
-    const data = generateFakeData();
-    setChartData(data);
+    if (!bitcoinPriceData || !bitcoinPriceData.BitcoinPrices) return;
 
-    // Calcular la tendencia (último valor vs. primero)
-    const cuotaChange =
-      ((data[data.length - 1].Cuota - data[0].Cuota) / data[0].Cuota) * 100;
-    setTrend(cuotaChange.toFixed(1)); // Redondear a 1 decimal
-  }, []);
+    // Mapear los datos reales del JSON
+    const formattedData = bitcoinPriceData.BitcoinPrices.map((entry) => ({
+      month: entry.month,
+      Cuota: 77900,
+      Bitcoin: entry.value || 0,
+    }));
+
+    setChartData(formattedData);
+
+    // Calcular la variación de la cuota en el año
+    if (formattedData.length > 1) {
+      const cuotaChange =
+        ((formattedData[formattedData.length - 1].Cuota - formattedData[0].Cuota) /
+          formattedData[0].Cuota) *
+        100;
+      setTrend(cuotaChange.toFixed(1)); // Redondear a 1 decimal
+    }
+  }, [bitcoinPriceData]); // Se ejecuta cuando cambia bitcoinPriceData
 
   const chartConfig = {
     desktop: {
@@ -107,7 +105,7 @@ export function PriceChart () {
               El valor de la cuota varió {trend}% durante el año <TrendingUp className="h-4 w-4" />
             </div>
             <div className="flex items-center gap-2 leading-none text-muted-foreground">
-              Enero - Diciembre 2025 (Datos ficticios)
+              Enero - Diciembre 2025 (Datos actualizados)
             </div>
           </div>
         </div>
