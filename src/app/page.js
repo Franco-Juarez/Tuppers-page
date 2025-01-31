@@ -35,12 +35,12 @@ export default function Dashboard () {
         {/* Header */}
         <header className="flex flex-col lg:flex-row justify-between items-center mb-8 ">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Bienvenidos, Tuppers!</h1>
+            <h1 className="text-4xl lg:text-2xl font-bold tracking-tight">Bienvenidos, Tuppers!</h1>
             <p className="text-muted-foreground">
               {fechaFormateada}
             </p>
           </div>
-          <div className="flex flex-col lg:flex-row gap-4">
+          <div className="flex flex-col lg:flex-row gap-4 pt-4 lg:pt-0">
             <Card>
               <CardContent className="flex flex-row gap-2 pt-4">
                 <Link target="_blank" href={nextExams[0].urlConsigna} className="flex items-left gap-2 items-start justify-between">
