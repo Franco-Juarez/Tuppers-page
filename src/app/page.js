@@ -35,8 +35,8 @@ export default function Dashboard () {
         {/* Header */}
         <header className="flex flex-col lg:flex-row justify-between items-center mb-8 ">
           <div>
-            <h1 className="text-4xl lg:text-2xl font-bold tracking-tight">Bienvenidos/as, Tuppers!</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-4xl text-center lg:text-left lg:text-2xl font-bold tracking-tight">Bienvenidos/as, Tuppers!</h1>
+            <p className="text-muted-foreground text-center lg:text-left">
               {fechaFormateada}
             </p>
           </div>
