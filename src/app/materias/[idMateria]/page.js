@@ -46,7 +46,7 @@ export default function PaginaMateria ({ params }) {
           <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Progreso del Curso</CardTitle>
+                <CardTitle>Progreso de la materia</CardTitle>
               </CardHeader>
               <CardContent>
                 <Progress value={progress} className="h-3" />
