@@ -16,7 +16,7 @@ export const exams = [
   {
     id: '3',
     materia: "Sistemas Distribuidos",
-    fechaEntrega: "2025-01-26",
+    fechaEntrega: "2025-01-25",
     titulo: "TP Arquitectura de Microservicios",
     urlConsigna: "https://www.facebook.com"
   }

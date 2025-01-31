@@ -19,7 +19,11 @@ const CustomCalendar = () => {
       numberOfMonths={3}
       weekStartsOn={1}
       modifiers={{
-        exam: exams.map((exam) => new Date(exam.fechaEntrega)),
+        exam: exams.map((exam) => {
+          const examDate = new Date(exam.fechaEntrega);
+          examDate.setHours(0, 0, 0, 0);  // Ajustar la hora a medianoche para evitar problemas de zona horaria
+          return examDate;
+        }),
       }}
       modifiersClassNames={{
         exam: "exam-day",
@@ -35,7 +39,11 @@ const CustomCalendar = () => {
         Day: ({ date, ...props }) => {
           // Encuentra el examen correspondiente a la fecha del día
           const exam = exams.find(
-            (exam) => new Date(exam.fechaEntrega).toDateString() === date.toDateString()
+            (exam) => {
+              const examDate = new Date(exam.fechaEntrega);
+              examDate.setHours(0, 0, 0, 0);  // Ajustar la hora a medianoche para evitar problemas de zona horaria
+              return examDate.toDateString() === date.toDateString();
+            }
           );
 
           return (
