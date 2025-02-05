@@ -13,20 +13,24 @@ import calculateProgress from "@/hooks/calculateProgress"
 import getNextExams from "@/hooks/nextExams"
 import CustomCalendar from "./components/customCalendar"
 import { PriceChart } from "./components/priceChart"
+import { useEffect, useState } from "react"
 
 export default function Dashboard () {
+  const [actualDate, setActualDate] = useState(new Date())
 
-  const actualDate = new Date()
+  useEffect(() => {
+    const actualDay = actualDate.getDate()
+    const actualMonth = actualDate.toLocaleDateString('es-AR', { month: 'long' })
+    const actualYear = actualDate.getFullYear()
+    const fechaFormateada = `${actualDay} de ${actualMonth} de ${actualYear}`
+    const nextExams = getNextExams(exams)
+  }, [])
 
-  const actualDay = actualDate.getDate()
-  const actualMonth = actualDate.toLocaleDateString('es-AR', { month: 'long' })
-  const actualYear = actualDate.getFullYear()
-  const fechaFormateada = `${actualDay} de ${actualMonth} de ${actualYear}`
-  const nextExams = getNextExams(exams)
   const fechaDeExamenFormateada = (fecha) => {
     const fechaFormateada = `${fecha.getDate()} de ${fecha.toLocaleDateString('es-AR', { month: 'long' })} de ${fecha.getFullYear()}`
     return fechaFormateada
   }
+
 
   return (
     <div className="min-h-screen bg-muted/40">
