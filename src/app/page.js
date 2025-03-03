@@ -1,42 +1,60 @@
+'use client'
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
-import {
-  CalendarDays,
-  PiggyBank
-} from "lucide-react"
+import { CalendarDays, PiggyBank } from "lucide-react"
 import Link from "next/link"
-import { materias } from "@/lib/materias"
-import { exams } from "@/lib/exams"
 import calculateProgress from "@/hooks/calculateProgress"
-import getNextExams from "@/hooks/nextExams"
 import CustomCalendar from "./components/customCalendar"
 import { PriceChart } from "./components/priceChart"
-import { useEffect, useState } from "react"
+import { useState, useEffect } from "react"
 
 export default function Dashboard () {
+  const [materias, setMaterias] = useState([])
+  const [exams, setExams] = useState([])
+  const [loading, setLoading] = useState(true)
   const [actualDate, setActualDate] = useState(new Date())
+  const actualDay = actualDate.getDate()
+  const actualMonth = actualDate.toLocaleDateString('es-AR', { month: 'long' })
+  const actualYear = actualDate.getFullYear()
+  const fechaFormateada = `${actualDay} de ${actualMonth} de ${actualYear}`
+
 
   useEffect(() => {
-    const actualDay = actualDate.getDate()
-    const actualMonth = actualDate.toLocaleDateString('es-AR', { month: 'long' })
-    const actualYear = actualDate.getFullYear()
-    const fechaFormateada = `${actualDay} de ${actualMonth} de ${actualYear}`
-    const nextExams = getNextExams(exams)
+    async function fetchMaterias () {
+      try {
+        const response = await fetch('./api/materias')
+        const result = await response.json()
+        console.log(result)
+        setMaterias(result)
+      } catch (error) {
+        console.error("Error al obtener las materias:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    async function fetchExams () {
+      try {
+        const response = await fetch('./api/exams')
+        const result = await response.json()
+        console.log(result)
+        setExams(result)
+      } catch (error) {
+        console.error("Error al obtener los exámenes:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchExams()
+    fetchMaterias()
   }, [])
-
-  const fechaDeExamenFormateada = (fecha) => {
-    const fechaFormateada = `${fecha.getDate()} de ${fecha.toLocaleDateString('es-AR', { month: 'long' })} de ${fecha.getFullYear()}`
-    return fechaFormateada
-  }
-
 
   return (
     <div className="min-h-screen bg-muted/40">
-      {/* Main Content */}
+
       <main className="py-8 px-4 lg:px-10">
-        {/* Header */}
+
         <header className="flex flex-col lg:flex-row justify-between items-center mb-8 ">
           <div>
             <h1 className="text-4xl text-center lg:text-left lg:text-2xl font-bold tracking-tight">Bienvenidos/as, Tuppers!</h1>
@@ -44,45 +62,42 @@ export default function Dashboard () {
               {fechaFormateada}
             </p>
           </div>
-          <div className="flex flex-col lg:flex-row gap-4 pt-4 lg:pt-0">
-            <Card>
-              <CardContent className="flex flex-row gap-2 pt-4">
-                <Link target="_blank" href={nextExams[0].urlConsigna} className="flex items-left gap-2 items-start justify-between">
-                  <div>
-                    <p className="text-sm font-medium">{nextExams[0].titulo}</p>
-                    <p className="text-sm text-muted-foreground">{fechaDeExamenFormateada(nextExams[0].fechaEntrega)}</p>
-                  </div>
-                  <Badge variant="destructive">Urgente</Badge>
-                </Link>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="flex flex-row gap-2 pt-4">
-                <Link target="_blank" href={nextExams[1].urlConsigna} className="flex items-left gap-2 items-start justify-between">
-                  <div>
-                    <p className="text-sm font-medium">{nextExams[1].titulo}</p>
-                    <p className="text-sm text-muted-foreground">{fechaDeExamenFormateada(nextExams[1].fechaEntrega)}</p>
-                  </div>
-                  <Badge variant="outline">Próximo</Badge>
-                </Link>
-              </CardContent>
-            </Card>
-          </div>
+          {loading ? (
+            <p>Cargando exámenes...</p>
+          ) : exams.length === 0 ? (
+            <p>No hay exámenes programados.</p>
+          ) : (
+            <div className="flex flex-col lg:flex-row gap-4 pt-4 lg:pt-0">
+              {exams.map((exam, index) => (
+                <Card key={index}>
+                  <CardContent className="flex flex-row gap-2 pt-4">
+                    <Link target="_blank" href={exam.consigna} className="flex items-left gap-2 justify-between">
+                      <div>
+                        <p className="text-sm font-medium">{exam.titulo}</p>
+                        <p className="text-sm text-muted-foreground">{exam.fechaEntrega}</p>
+                      </div>
+                      <Badge variant={index === 0 ? "destructive" : "outline"}>
+                        {index === 0 ? "Urgente" : "Próximo"}
+                      </Badge>
+                    </Link>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </header>
 
-        {/* Materias Section */}
         <section className="mb-8">
           <h2 className="text-xl font-semibold mb-6">Materias del Cuatrimestre</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {materias.map((materia) => {
-              const progress = calculateProgress(materia.fechaInicio, materia.fechaFinalizacion)
+              const progress = calculateProgress(materia.fechaInicio, materia.fechaFinal)
               return (
-
-                <Link key={materia.id} href={`/materias/${materia.id}`}>
+                <Link key={materia.id_materia} href={`/materias/${materia.id_materia}`}>
                   <Card className="hover:shadow-md transition-shadow">
                     <CardHeader className="pb-4">
-                      <CardTitle className="text-base">{materia.name}</CardTitle>
-                      <p className="text-sm text-muted-foreground">{materia.professor}</p>
+                      <CardTitle className="text-base">{materia.nombre}</CardTitle>
+                      <p className="text-sm text-muted-foreground">{materia.profesor}</p>
                     </CardHeader>
                     <CardContent>
                       <Progress value={progress} className="h-2 mb-2" />
@@ -98,9 +113,7 @@ export default function Dashboard () {
           </div>
         </section>
 
-        {/* Calendar and Quick Links */}
         <div className="grid grid-cols-1 lg:grid-cols-3 items-start gap-4">
-          {/* Calendario */}
           <Card className="flex flex-col justify-center lg:col-span-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -108,11 +121,9 @@ export default function Dashboard () {
               </CardTitle>
             </CardHeader>
             <CardContent className="flex p-2 flex-wrap flex-col xl:flex-row items-center justify-start w-full">
-              <CustomCalendar />
+              <CustomCalendar exams={exams} />
             </CardContent>
           </Card>
-
-          {/* Quick Actions */}
           <Card>
             <CardHeader className="flex gap-2 flex-row items-center">
               <Avatar className="h-8 w-8">

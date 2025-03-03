@@ -1,5 +1,4 @@
-'use client'
-
+import { useEffect, useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,9 +7,22 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { exams } from "@/lib/exams";
 
-const CustomCalendar = () => {
+const CustomCalendar = ({ exams }) => {
+  const [examDates, setExamDates] = useState([]);
+
+  useEffect(() => {
+    if (exams?.length > 0) {
+      setExamDates(
+        exams.map((exam) => {
+          const examDate = new Date(exam.fechaEntrega)
+          examDate.setHours(0, 0, 0, 0)
+          return examDate;
+        })
+      );
+    }
+  }, [exams]);
+
   return (
     <Calendar
       mode="single"
@@ -19,11 +31,7 @@ const CustomCalendar = () => {
       numberOfMonths={3}
       weekStartsOn={1}
       modifiers={{
-        exam: exams.map((exam) => {
-          const examDate = new Date(exam.fechaEntrega);
-          examDate.setHours(0, 0, 0, 0);  // Ajustar la hora a medianoche para evitar problemas de zona horaria
-          return examDate;
-        }),
+        exam: examDates,
       }}
       modifiersClassNames={{
         exam: "exam-day",
@@ -38,20 +46,20 @@ const CustomCalendar = () => {
       components={{
         Day: ({ date, ...props }) => {
           // Encuentra el examen correspondiente a la fecha del día
-          const exam = exams.find(
-            (exam) => {
-              const examDate = new Date(exam.fechaEntrega);
-              examDate.setHours(0, 0, 0, 0);  // Ajustar la hora a medianoche para evitar problemas de zona horaria
-              return examDate.toDateString() === date.toDateString();
-            }
-          );
+          const exam = exams?.find((exam) => {
+            const examDate = new Date(exam.fechaEntrega);
+            const examDateString = examDate.toISOString().split('T')[0]
+            const dateString = date.toISOString().split('T')[0]
+            return examDateString === dateString;
+          });
 
           return (
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    className={`bg-transparent w-full h-full p-0 text-center rounded-sm shadow-none hover:bg-slate-200 hover:text-gray-800  ${exam ? 'rounded-sm bg-red-500 text-slate-50 hover:bg-red-500 hover:text-slate-50' : 'text-gray-700'} `}
+                    className={`bg-transparent w-full h-full p-0 text-center rounded-sm shadow-none hover:bg-slate-200 hover:text-gray-800  
+                      ${exam ? 'rounded-sm bg-red-500 text-white hover:bg-red-500' : 'text-gray-700'} `}
                     style={{
                       padding: 0,
                       display: 'flex',
@@ -67,8 +75,8 @@ const CustomCalendar = () => {
                 <TooltipContent>
                   {exam ? (
                     <div>
-                      <p>Materia: {exam.materia}</p>
-                      <p>Parcial: {exam.titulo}</p>
+                      <p><strong>Materia:</strong> {exam.materia}</p>
+                      <p><strong>Parcial:</strong> {exam.titulo}</p>
                     </div>
                   ) : (
                     <p>No hay examen</p>

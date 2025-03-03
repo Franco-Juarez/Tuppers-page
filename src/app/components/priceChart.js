@@ -15,43 +15,35 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 
-import useBitcoinPrice from '@/hooks/calculatePrice';
-
 export function PriceChart () {
-  const [chartData, setChartData] = useState([]);
+  const [chartData, setChartData] = useState([
+    { month: 'Apr', Cuota: 51900 },
+    { month: 'May', Cuota: 55900 },
+    { month: 'Jun', Cuota: 60900 },
+    { month: 'Jul', Cuota: 63500 },
+    { month: 'Ago', Cuota: 67900 },
+    { month: 'Sep', Cuota: 69900 },
+    { month: 'Oct', Cuota: 70000 },
+    { month: 'Nov', Cuota: 75900 },
+    { month: 'Dic', Cuota: 77900 },
+    { month: 'Ene', Cuota: 77900 },
+    { month: 'Feb', Cuota: 77900 },
+  ]);
   const [trend, setTrend] = useState(0);
-  const bitcoinPriceData = useBitcoinPrice();
 
   useEffect(() => {
-    if (!bitcoinPriceData || !bitcoinPriceData.BitcoinPrices) return;
-
-    // Mapear los datos reales del JSON
-    const formattedData = bitcoinPriceData.BitcoinPrices.map((entry) => ({
-      month: entry.month,
-      Cuota: 77900,
-      Bitcoin: entry.value || 0,
-    }));
-
-    setChartData(formattedData);
-
-    // Calcular la variación de la cuota en el año
-    if (formattedData.length > 1) {
-      const cuotaChange =
-        ((formattedData[formattedData.length - 1].Cuota - formattedData[0].Cuota) /
-          formattedData[0].Cuota) *
-        100;
-      setTrend(cuotaChange.toFixed(1)); // Redondear a 1 decimal
+    if (chartData.length > 1) {
+      const firstValue = chartData[0].Cuota;
+      const lastValue = chartData[chartData.length - 1].Cuota;
+      const percentageChange = ((lastValue - firstValue) / firstValue) * 100;
+      setTrend(percentageChange.toFixed(2));
     }
-  }, [bitcoinPriceData]); // Se ejecuta cuando cambia bitcoinPriceData
+  }, [chartData]);
 
   const chartConfig = {
     desktop: {
       label: 'Cuota',
       color: 'hsl(var(--chart-1))',
-    },
-    mobile: {
-      label: 'Bitcoin',
-      color: 'hsl(var(--chart-2))',
     },
   };
 
@@ -73,19 +65,10 @@ export function PriceChart () {
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
             />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent indicator="dot" />}
-            />
-            <Area
-              dataKey="Bitcoin"
-              type="natural"
-              fill="var(--color-mobile)"
-              fillOpacity={0.4}
-              stroke="var(--color-mobile)"
-              stackId="a"
             />
             <Area
               dataKey="Cuota"
@@ -93,7 +76,6 @@ export function PriceChart () {
               fill="var(--color-desktop)"
               fillOpacity={0.4}
               stroke="var(--color-desktop)"
-              stackId="a"
             />
           </AreaChart>
         </ChartContainer>
@@ -102,10 +84,10 @@ export function PriceChart () {
         <div className="flex w-full items-start gap-2 text-sm">
           <div className="grid gap-2">
             <div className="flex items-center gap-2 font-medium leading-none">
-              El valor de la cuota varió {trend}% durante el año <TrendingUp className="h-4 w-4" />
+              La cuota varió {trend}% desde Abril <TrendingUp className="h-4 w-4" />
             </div>
             <div className="flex items-center gap-2 leading-none text-muted-foreground">
-              Enero - Diciembre 2025 (Datos actualizados)
+              Abril - Febrero {new Date().getFullYear()} (Datos actualizados)
             </div>
           </div>
         </div>
