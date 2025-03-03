@@ -14,6 +14,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
+import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
 
 export function PriceChart () {
   const [chartData, setChartData] = useState([
@@ -90,6 +92,11 @@ export function PriceChart () {
               Abril - Febrero {new Date().getFullYear()} (Datos actualizados)
             </div>
           </div>
+          <Badge variant="default">
+            <Link href="https://www.frbb.utn.edu.ar/frbb/info/secretarias/academica/carreras/pregrado/tup/instructivo-pagos-tup.pdf" target='_blank'>
+              Link al PDF
+            </Link>
+          </Badge>
         </div>
       </CardFooter>
     </Card>
