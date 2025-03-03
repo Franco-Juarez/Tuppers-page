@@ -179,6 +179,7 @@ export default function PaginaMateria ({ params }) {
               <CardContent className="space-y-4">
                 {materia.recursos ? (
                   <Link
+                    target='_blank'
                     className='hover:text-muted-foreground flex gap-1'
                     href={materia.recursos}
                   >
