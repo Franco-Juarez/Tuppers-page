@@ -1,14 +1,13 @@
 'use client'
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
 import { CalendarDays, PiggyBank } from "lucide-react"
 import Link from "next/link"
 import calculateProgress from "@/hooks/calculateProgress"
 import CustomCalendar from "./components/customCalendar"
 import { PriceChart } from "./components/priceChart"
 import { useState, useEffect } from "react"
+import { DashboardHeader } from "@/components/custom/header"
 
 export default function Dashboard () {
   const [materias, setMaterias] = useState([])
@@ -55,39 +54,14 @@ export default function Dashboard () {
 
       <main className="py-8 px-4 lg:px-10">
 
-        <header className="flex flex-col lg:flex-row justify-between items-center mb-8 ">
-          <div>
-            <h1 className="text-4xl text-center lg:text-left lg:text-2xl font-bold tracking-tight">Bienvenidos/as, Tuppers!</h1>
-            <p className="text-muted-foreground text-center lg:text-left">
-              {fechaFormateada}
-            </p>
-          </div>
-          {loading ? (
-            <p>Cargando exámenes...</p>
-          ) : exams.length === 0 ? (
-            <p>No hay exámenes programados.</p>
-          ) : (
-            <div className="flex flex-col lg:flex-row gap-4 pt-4 lg:pt-0">
-              {exams.map((exam, index) => (
-                <Card key={index}>
-                  <CardContent className="flex flex-row gap-2 pt-4">
-                    <Link target="_blank" href={exam.consigna} className="flex items-left gap-2 justify-between">
-                      <div>
-                        <p className="text-sm font-medium">{exam.titulo}</p>
-                        <p className="text-sm text-muted-foreground">{exam.fechaEntrega}</p>
-                      </div>
-                      <Badge variant={index === 0 ? "destructive" : "outline"}>
-                        {index === 0 ? "Urgente" : "Próximo"}
-                      </Badge>
-                    </Link>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </header>
+        <DashboardHeader
+          fechaFormateada={fechaFormateada}
+          loading={loading}
+          exams={exams}
+          materias={materias}
+        />
 
-        <section className="mb-8">
+        <section className="my-8">
           <h2 className="text-xl font-semibold mb-6">Materias del Cuatrimestre</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {materias.map((materia) => {
@@ -125,17 +99,6 @@ export default function Dashboard () {
             </CardContent>
           </Card>
           <Card>
-            <CardHeader className="flex gap-2 flex-row items-center">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback>
-                  <PiggyBank />
-                </AvatarFallback>
-              </Avatar>
-              <CardTitle>Valor de la cuota para el mes de {actualMonth}:</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Badge variant="secondary" className="bg-green-600 text-white hover:bg-green-600">$77.900</Badge>
-            </CardContent>
             <PriceChart />
           </Card>
         </div>
