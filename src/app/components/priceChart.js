@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { TrendingUp, TrendingDown, ExternalLink } from "lucide-react"
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts"
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer, Legend, Tooltip } from "recharts"
 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
@@ -25,8 +25,26 @@ export function PriceChart () {
     { month: "Feb", Cuota: 77900 },
     { month: "Mar", Cuota: 77900 },
   ])
+  const [inflationData, setInflationData] = useState([])
+  const [combinedData, setCombinedData] = useState([])
   const [trend, setTrend] = useState(0)
   const [isTrendPositive, setIsTrendPositive] = useState(true)
+  const [inflationTrend, setInflationTrend] = useState(0)
+
+  useEffect(() => {
+    // Fetch inflation data
+    async function fetchInflationData() {
+      try {
+        const response = await fetch('./api/inflation')
+        const result = await response.json()
+        setInflationData(result)
+      } catch (error) {
+        console.error("Error al obtener datos de inflación:", error)
+      }
+    }
+    
+    fetchInflationData()
+  }, [])
 
   useEffect(() => {
     if (chartData.length > 1) {
@@ -36,13 +54,37 @@ export function PriceChart () {
       setTrend(percentageChange.toFixed(2))
       setIsTrendPositive(percentageChange >= 0)
     }
-  }, [chartData])
+
+    if (inflationData.length > 0) {
+      // Get the accumulated inflation from the last item
+      const totalInflation = inflationData[inflationData.length - 1].accumulatedInflation
+      setInflationTrend(totalInflation)
+
+      // Combine the data
+      const combined = chartData.map((item, index) => {
+        if (index < inflationData.length) {
+          return {
+            ...item,
+            Inflación: inflationData[index].inflation,
+            "Inflación Acumulada": inflationData[index].accumulatedInflation
+          }
+        }
+        return item
+      })
+      
+      setCombinedData(combined)
+    }
+  }, [chartData, inflationData])
 
   const chartConfig = {
     Cuota: {
       label: "Cuota",
       color: "hsl(var(--primary))",
     },
+    "Inflación Acumulada": {
+      label: "Inflación Acumulada",
+      color: "hsl(var(--destructive))",
+    }
   }
 
   const formatCurrency = (value) => {
@@ -53,10 +95,14 @@ export function PriceChart () {
     }).format(value)
   }
 
+  const formatPercentage = (value) => {
+    return `${value}%`
+  }
+
   return (
     <Card className="overflow-hidden border shadow-md">
       <CardHeader className="bg-muted/30 pb-2">
-        <CardTitle className="text-lg font-medium">Evolución de la Cuota</CardTitle>
+        <CardTitle className="text-lg font-medium">Evolución de la Cuota vs Inflación</CardTitle>
       </CardHeader>
       <CardContent className="p-4 pt-6">
         <div className="mb-2 flex items-center justify-between">
@@ -83,7 +129,7 @@ export function PriceChart () {
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
                 accessibilityLayer
-                data={chartData}
+                data={combinedData.length > 0 ? combinedData : chartData}
                 margin={{
                   top: 10,
                   right: 10,
@@ -93,8 +139,12 @@ export function PriceChart () {
               >
                 <defs>
                   <linearGradient id="colorCuota" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.0} />
+                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.1} />
                     <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.0} />
+                  </linearGradient>
+                  <linearGradient id="colorInflacion" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="hsl(var(--destructive))" stopOpacity={0.1} />
+                    <stop offset="95%" stopColor="hsl(var(--destructive))" stopOpacity={0.0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted-foreground)/0.2)" />
@@ -106,17 +156,33 @@ export function PriceChart () {
                   stroke="hsl(var(--muted-foreground))"
                 />
                 <YAxis
+                  yAxisId="left"
                   tickFormatter={(value) => `$${value / 1000}k`}
                   tickLine={false}
                   axisLine={false}
                   tickMargin={8}
                   stroke="hsl(var(--muted-foreground))"
                 />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent indicator="dot" formatter={(value) => formatCurrency(value)} />}
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  tickFormatter={(value) => `${value}%`}
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  stroke="hsl(var(--muted-foreground))"
+                  domain={[0, 'dataMax + 10']}
                 />
+                <Tooltip 
+                  formatter={(value, name) => {
+                    if (name === "Cuota") return formatCurrency(value);
+                    if (name === "Inflación Acumulada") return formatPercentage(value);
+                    return value;
+                  }}
+                />
+                <Legend />
                 <Area
+                  yAxisId="left"
                   dataKey="Cuota"
                   type="monotone"
                   fill="url(#colorCuota)"
@@ -124,6 +190,17 @@ export function PriceChart () {
                   stroke="hsl(var(--primary))"
                   strokeWidth={2}
                 />
+                {inflationData.length > 0 && (
+                  <Area
+                    yAxisId="right"
+                    dataKey="Inflación Acumulada"
+                    type="monotone"
+                    fill="url(#colorInflacion)"
+                    fillOpacity={0.8}
+                    stroke="hsl(var(--destructive))"
+                    strokeWidth={2}
+                  />
+                )}
               </AreaChart>
             </ResponsiveContainer>
           </ChartContainer>
@@ -132,19 +209,29 @@ export function PriceChart () {
       <Separator />
       <CardFooter className="bg-muted/20 p-4 text-sm">
         <div className="flex w-full flex-col gap-1 text-muted-foreground">
-          <p className="flex items-center gap-1.5">
-            <span className="font-medium text-foreground">Variación:</span>
-            {isTrendPositive ? (
-              <span className="flex items-center text-primary">
-                +{trend}% <TrendingUp className="ml-1 h-3.5 w-3.5" />
-              </span>
-            ) : (
-              <span className="flex items-center text-destructive">
-                {trend}% <TrendingDown className="ml-1 h-3.5 w-3.5" />
-              </span>
+          <div className="flex justify-between">
+            <p className="flex items-center gap-1.5">
+              <span className="font-medium text-foreground">Variación Cuota:</span>
+              {isTrendPositive ? (
+                <span className="flex items-center text-primary">
+                  +{trend}% <TrendingUp className="ml-1 h-3.5 w-3.5" />
+                </span>
+              ) : (
+                <span className="flex items-center text-destructive">
+                  {trend}% <TrendingDown className="ml-1 h-3.5 w-3.5" />
+                </span>
+              )}
+              desde Abril
+            </p>
+            {inflationData.length > 0 && (
+              <p className="flex items-center gap-1.5">
+                <span className="font-medium text-foreground">Inflación Acumulada:</span>
+                <span className="flex items-center text-destructive">
+                  {inflationTrend}% <TrendingUp className="ml-1 h-3.5 w-3.5" />
+                </span>
+              </p>
             )}
-            desde Abril
-          </p>
+          </div>
           <p>Período: Abril - Febrero {new Date().getFullYear()} (Datos actualizados)</p>
         </div>
       </CardFooter>
