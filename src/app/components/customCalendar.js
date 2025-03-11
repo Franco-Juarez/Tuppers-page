@@ -11,6 +11,7 @@ import { useMediaQuery } from "@/hooks/use-media-query"
 
 const CustomCalendar = ({ exams = [] }) => {
   const [examDates, setExamDates] = useState([])
+  const [currentMonth, setCurrentMonth] = useState(new Date())
   const isDesktop = useMediaQuery("(min-width: 768px)")
   const isLargeDesktop = useMediaQuery("(min-width: 1280px)")
 
@@ -42,6 +43,11 @@ const CustomCalendar = ({ exams = [] }) => {
     return 1
   }
 
+  // Handle month change
+  const handleMonthChange = (month) => {
+    setCurrentMonth(month)
+  }
+
   return (
     <Card className="overflow-hidden">
       <CardHeader className="bg-muted/30 pb-3">
@@ -59,7 +65,7 @@ const CustomCalendar = ({ exams = [] }) => {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-0 sm:p-4">
+      <CardContent className="p-0">
         <TooltipProvider>
           <Calendar
             mode="single"
@@ -67,6 +73,8 @@ const CustomCalendar = ({ exams = [] }) => {
             fixedWeeks
             numberOfMonths={getNumberOfMonths()}
             weekStartsOn={1}
+            month={currentMonth}
+            onMonthChange={handleMonthChange}
             classNames={{
               months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
               month: "space-y-4",
@@ -128,7 +136,7 @@ const CustomCalendar = ({ exams = [] }) => {
                         )}
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent side="top" align="center" className="max-w-[220px] p-0 overflow-hidden">
+                    <TooltipContent>
                       {exam ? (
                         <div className="space-y-1.5 bg-slate-900">
                           <div className="p-2 text-xs font-medium">

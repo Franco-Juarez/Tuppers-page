@@ -1,201 +1,114 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import MateriasList from './components/MateriasList'
-import ExamsList from './components/ExamsList'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { useRouter } from 'next/navigation'
 
-export default function AdminDashboard() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+export default function AdminPage() {
+  const [userData, setUserData] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [adminData, setAdminData] = useState({
-    name: '',
-    email: ''
-  })
-  const [stats, setStats] = useState({
-    materias: 0,
-    examenes: 0,
-    usuarios: 0
-  })
+  const [error, setError] = useState(null)
+  const [retryCount, setRetryCount] = useState(0)
   const router = useRouter()
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('adminToken')
-      
-      if (!token) {
-        router.push('/admin-login')
-        return
-      }
-
       try {
+        // Verificar autenticación
         const response = await fetch('/api/admin/verify', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-
-        if (!response.ok) {
-          throw new Error('No autorizado')
-        }
-
-        const data = await response.json()
-        setAdminData({
-          name: data.name,
-          email: data.email
-        })
-        setIsAuthenticated(true)
+          credentials: 'include'
+        });
         
-        // Cargar estadísticas
-        await fetchStats()
+        if (response.ok) {
+          const data = await response.json();
+          setUserData(data);
+        } else {
+          setError('No autorizado. Por favor, inicia sesión.');
+          
+          // Solo redirigir si hemos agotado los reintentos
+          if (retryCount >= 2) {
+            setTimeout(() => {
+              window.location.href = '/admin-login';
+            }, 2000);
+          }
+        }
       } catch (error) {
-        console.error('Error de autenticación:', error)
-        localStorage.removeItem('adminToken')
-        router.push('/admin-login')
+        setError(`Error al verificar autenticación`);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
+    
+    checkAuth();
+  }, [retryCount]);
 
-    checkAuth()
-  }, [router])
-  
-  const fetchStats = async () => {
+  const handleLogout = async () => {
     try {
-      const token = localStorage.getItem('adminToken')
+      await fetch('/api/admin/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
       
-      // Obtener materias
-      const materiasResponse = await fetch('/api/materias', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      
-      // Obtener exámenes
-      const examsResponse = await fetch('/api/exams', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      
-      const materias = await materiasResponse.json()
-      let examenes = []
-      
-      try {
-        examenes = await examsResponse.json()
-      } catch (error) {
-        console.log('No hay exámenes disponibles')
-      }
-      
-      setStats({
-        materias: materias.length,
-        examenes: examenes.length,
-        usuarios: 1 // Por ahora solo hay un usuario administrador
-      })
+      window.location.href = '/admin-login';
     } catch (error) {
-      console.error('Error al cargar estadísticas:', error)
+      // Error al cerrar sesión
     }
-  }
+  };
 
-  const handleLogout = () => {
-    localStorage.removeItem('adminToken')
-    router.push('/admin-login')
-  }
+  const handleRetry = () => {
+    setLoading(true);
+    setError(null);
+    setRetryCount(prev => prev + 1);
+  };
 
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p>Cargando...</p>
+        <p>Cargando panel de administración...</p>
       </div>
-    )
-  }
-
-  if (!isAuthenticated) {
-    return null // No mostrar nada mientras se redirige
+    );
   }
 
   return (
-    <div className="min-h-screen bg-muted/40">
-      <div className="container mx-auto py-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Panel de Administración</h1>
-          <div className="flex items-center gap-4">
-            <p className="text-sm text-muted-foreground">
-              Bienvenido, <span className="font-medium text-foreground">{adminData.name}</span>
-            </p>
-            <Button variant="outline" onClick={handleLogout}>Cerrar sesión</Button>
-          </div>
-        </div>
-
-        <Tabs defaultValue="dashboard">
-          <TabsList className="mb-4">
-            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="materias">Materias</TabsTrigger>
-            <TabsTrigger value="examenes">Exámenes</TabsTrigger>
-          </TabsList>
+    <div className="container mx-auto py-10">
+      <Card className="max-w-3xl mx-auto">
+        <CardHeader>
+          <CardTitle>Panel de Administración</CardTitle>
+          <CardDescription>
+            Bienvenido al panel de administración de Tuppers
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>
+                {error}
+                <Button 
+                  variant="link" 
+                  className="p-0 h-auto text-white underline ml-2" 
+                  onClick={handleRetry}
+                >
+                  Reintentar
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
           
-          <TabsContent value="dashboard">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Materias</CardTitle>
-                  <CardDescription>Total de materias registradas</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">{stats.materias}</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle>Exámenes</CardTitle>
-                  <CardDescription>Total de exámenes programados</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">{stats.examenes}</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle>Usuarios</CardTitle>
-                  <CardDescription>Total de usuarios registrados</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">{stats.usuarios}</p>
-                </CardContent>
-              </Card>
+          {userData ? (
+            <div>
+              <p><strong>Email:</strong> {userData.email}</p>
+              <p><strong>Rol:</strong> {userData.role || 'admin'}</p>
             </div>
-          </TabsContent>
-          
-          <TabsContent value="materias">
-            <Card>
-              <CardHeader>
-                <CardTitle>Gestión de Materias</CardTitle>
-                <CardDescription>Administra las materias del sistema</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <MateriasList />
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="examenes">
-            <Card>
-              <CardHeader>
-                <CardTitle>Gestión de Exámenes</CardTitle>
-                <CardDescription>Administra los exámenes programados</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ExamsList />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
+          ) : (
+            <p>No se pudo cargar la información del usuario.</p>
+          )}
+        </CardContent>
+        <CardFooter>
+          <Button onClick={handleLogout} variant="outline">Cerrar sesión</Button>
+        </CardFooter>
+      </Card>
     </div>
-  )
+  );
 } 

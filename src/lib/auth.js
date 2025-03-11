@@ -1,7 +1,8 @@
 import { verify } from 'jsonwebtoken'
+import { cookies } from 'next/headers'
 
 // Clave secreta para verificar el JWT (debe ser la misma que se usó para firmarlo)
-const JWT_SECRET = 'tuppers_admin_secret_key'
+const JWT_SECRET = process.env.SECRET_KEY || 'default-secret-key'
 
 /**
  * Verifica un token JWT y devuelve los datos decodificados
@@ -20,35 +21,26 @@ export function verifyToken(token) {
 /**
  * Middleware para verificar si el usuario es administrador
  * @param {Request} request - Objeto de solicitud
- * @returns {Object|Response} - Datos del usuario o respuesta de error
+ * @returns {Object} - Datos del usuario o respuesta de error
  */
 export async function isAdmin(request) {
+  // Obtener la cookie de autenticación
+  const cookieStore = await cookies()
+  const token = cookieStore.get('adminToken')?.value
+  
+  if (!token) {
+    return { error: 'No autorizado', status: 401 }
+  }
+  
   try {
-    const authHeader = request.headers.get('authorization')
-    
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return { error: 'Token no proporcionado', status: 401 }
-    }
-    
-    const token = authHeader.split(' ')[1]
     const decoded = verifyToken(token)
     
     if (decoded.role !== 'admin') {
-      return { error: 'Acceso no autorizado', status: 403 }
+      return { error: 'No autorizado', status: 403 }
     }
     
-    return { user: decoded }
+    return { error: null, user: decoded }
   } catch (error) {
-    console.error('Error de autenticación:', error)
-    
-    if (error.name === 'TokenExpiredError') {
-      return { error: 'Token expirado', status: 401 }
-    }
-    
-    if (error.name === 'JsonWebTokenError') {
-      return { error: 'Token inválido', status: 401 }
-    }
-    
-    return { error: 'Error interno del servidor', status: 500 }
+    return { error: 'Token inválido', status: 401 }
   }
 } 

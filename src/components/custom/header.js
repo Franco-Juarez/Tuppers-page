@@ -1,6 +1,8 @@
 "use client"
 import Link from "next/link"
 import { Calendar, Clock, ExternalLink, AlertCircle, Loader2 } from "lucide-react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -8,8 +10,6 @@ import { Separator } from "@/components/ui/separator"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 export function DashboardHeader ({ fechaFormateada, loading, exams = [] }) {
-
-  console.log(exams)
 
   return (
     <div className="space-y-6 rounded-lg border bg-card p-6 shadow-sm">
@@ -98,5 +98,32 @@ export function DashboardHeader ({ fechaFormateada, loading, exams = [] }) {
       </div>
     </div>
   )
+}
+
+export default function Header({ exams = [] }) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [isExamsOpen, setIsExamsOpen] = useState(false)
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [isAdminDropdownOpen, setIsAdminDropdownOpen] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [adminToken, setAdminToken] = useState(null)
+  const router = useRouter()
+  
+  useEffect(() => {
+    const token = localStorage.getItem('adminToken')
+    if (token) {
+      setIsAdmin(true)
+      setAdminToken(token)
+    }
+  }, [])
+  
+  const handleLogout = () => {
+    localStorage.removeItem('adminToken')
+    setIsAdmin(false)
+    setAdminToken(null)
+    router.push('/')
+  }
+  
+  return null
 }
 
