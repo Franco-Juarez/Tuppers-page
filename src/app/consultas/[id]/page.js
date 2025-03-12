@@ -155,7 +155,7 @@ export default function ConsultaPage({ params }) {
     }
   }
   
-  const handleReportar = async (tipo, id) => {
+  const handleReportar = async (type, id) => {
     try {
       const response = await fetch('/api/reportar', {
         method: 'POST',
@@ -163,7 +163,7 @@ export default function ConsultaPage({ params }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          tipo,
+          type,
           id
         }),
       })
@@ -174,7 +174,7 @@ export default function ConsultaPage({ params }) {
         throw new Error(data.error || `Error al reportar ${tipo}`)
       }
       
-      setMensaje(`${tipo === 'consulta' ? 'Consulta' : 'Respuesta'} reportada correctamente`)
+      setMensaje(`${type === 'consulta' ? 'Consulta' : 'Respuesta'} reportada correctamente`)
     } catch (error) {
       console.error('Error:', error)
       setError(error.message)
