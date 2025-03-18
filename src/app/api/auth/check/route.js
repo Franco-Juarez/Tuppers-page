@@ -35,8 +35,7 @@ export async function GET(req) {
       user: {
         id: user.id,
         name: user.name,
-        email: user.email,
-        role: user.role
+        mail: user.mail
       }
     });
   } catch (error) {
