@@ -5,10 +5,10 @@ import db from '@/lib/db';
 // app/api/auth/login/route.js
 export async function POST(request) {
   try {
-    const { email } = await request.json();
+    const { mail } = await request.json();
 
     // 1. Buscar usuario en la base de datos por email
-    const result = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
+    const result = await db.execute('SELECT * FROM usuarios_autorizados WHERE mail = ?', [mail]);
     const user = result.rows[0];
 
     // 2. Verificar existencia
@@ -21,7 +21,7 @@ export async function POST(request) {
 
     // 3. Crear token JWT con duración de 24 horas
     const token = jwt.sign(
-      { userId: user.id, role: user.role },
+      { userId: user.id },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -32,8 +32,7 @@ export async function POST(request) {
       user: {
         id: user.id,
         name: user.name,
-        email: user.email,
-        role: user.role
+        mail: user.mail,
       }
     });
 
