@@ -1,7 +1,7 @@
 'use client'
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { CalendarDays, PiggyBank } from "lucide-react"
+import { CalendarDays } from "lucide-react"
 import Link from "next/link"
 import calculateProgress from "@/hooks/calculateProgress"
 import CustomCalendar from "./components/customCalendar"

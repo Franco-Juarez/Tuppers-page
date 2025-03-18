@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
-import { isAdmin } from "@/lib/auth";
+// import { isAdmin } from "@/lib/auth";
 
 export async function GET (req) {
   try {
@@ -46,17 +46,11 @@ export async function GET (req) {
 
 // Crear una nueva materia
 export async function POST(request) {
-  // Verificar que el usuario es administrador
-  const authResult = await isAdmin(request);
-  if (authResult.error) {
-    return NextResponse.json({ error: authResult.error }, { status: authResult.status });
-  }
-
   try {
     const data = await request.json();
     
     // Validar datos requeridos
-    if (!data.nombre || !data.profesor || !data.fechaInicio || !data.fechaFinal) {
+    if (!data.nombre || !data.profesor) {
       return NextResponse.json(
         { error: "Faltan campos requeridos" },
         { status: 400 }
@@ -81,8 +75,8 @@ export async function POST(request) {
       data.nombre,
       data.profesor,
       data.email || '',
-      data.fechaInicio,
-      data.fechaFinal,
+      data.fechaInicio || null,
+      data.fechaFinal || null,
       data.horarioCursada || '',
       data.descripcion || '',
       data.recursos || ''
@@ -106,22 +100,31 @@ export async function POST(request) {
   }
 }
 
-// Actualizar una materia existente
-export async function PUT(request) {
-  // Verificar que el usuario es administrador
-  const authResult = await isAdmin(request);
-  if (authResult.error) {
-    return NextResponse.json({ error: authResult.error }, { status: authResult.status });
-  }
-
+// Actualizar una materia existente usando PATCH en lugar de PUT
+export async function PATCH(request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const idMateria = searchParams.get("id");
     const data = await request.json();
     
     // Validar ID de materia
-    if (!data.id_materia) {
+    if (!idMateria) {
       return NextResponse.json(
         { error: "Se requiere el ID de la materia" },
         { status: 400 }
+      );
+    }
+
+    // Verificar si la materia existe
+    console.log("Verificando existencia de materia con ID:", idMateria);
+    const checkQuery = "SELECT id_materia FROM materias WHERE id_materia = ?";
+    const checkResult = await db.execute(checkQuery, [idMateria]);
+    console.log("Resultado de verificación:", checkResult.rows);
+
+    if (!checkResult.rows.length) {
+      return NextResponse.json(
+        { error: "La materia no existe" },
+        { status: 404 }
       );
     }
 
@@ -178,7 +181,7 @@ export async function PUT(request) {
     }
 
     // Agregar el ID de la materia a los parámetros
-    params.push(data.id_materia);
+    params.push(idMateria);
 
     const query = `
       UPDATE materias 
@@ -203,15 +206,9 @@ export async function PUT(request) {
 
 // Eliminar una materia
 export async function DELETE(request) {
-  // Verificar que el usuario es administrador
-  const authResult = await isAdmin(request);
-  if (authResult.error) {
-    return NextResponse.json({ error: authResult.error }, { status: authResult.status });
-  }
-
   try {
     const { searchParams } = new URL(request.url);
-    const idMateria = searchParams.get("idMateria");
+    const idMateria = searchParams.get("id");
 
     if (!idMateria) {
       return NextResponse.json(

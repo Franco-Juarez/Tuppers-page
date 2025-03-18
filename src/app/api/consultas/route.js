@@ -1,6 +1,24 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
-import { isAdmin } from "@/lib/auth";
+import { cookies } from "next/headers";
+import jwt from "jsonwebtoken";
+
+// Función auxiliar para verificar si el usuario es admin
+async function checkAdminUser(request) {
+  try {
+    const cookieStore = cookies();
+    const token = cookieStore.get("session_token")?.value;
+    
+    if (!token) {
+      return false;
+    }
+    
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return decoded.role === 'admin';
+  } catch (error) {
+    return false;
+  }
+}
 
 // Obtener consultas (con filtros opcionales)
 export async function GET(req) {
@@ -11,6 +29,9 @@ export async function GET(req) {
     const estado = searchParams.get("estado");
     const soloNoRevisadas = searchParams.get("noRevisadas") === "1";
     const soloReportadas = searchParams.get("reportadas") === "1";
+    
+    // Verificar si el usuario es administrador
+    const isAdminUser = await checkAdminUser(req);
     
     let query = `
       SELECT 
@@ -32,7 +53,7 @@ export async function GET(req) {
     let conditions = [];
 
     // Filtrar por materia
-    if (idMateria) {
+    if (idMateria && idMateria !== 'all') {
       conditions.push('c.id_materia = ?');
       params.push(idMateria);
     }
@@ -43,24 +64,14 @@ export async function GET(req) {
       params.push(idConsulta);
     }
 
-    // Verificar autenticación
-    let isAdminUser = false;
-    const authHeader = req.headers.get('authorization');
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const authResult = await isAdmin(req);
-      isAdminUser = !authResult.error;
-    }
-
     // Filtrar por estado
     if (estado && estado !== 'all') {
       conditions.push('c.estado = ?');
       params.push(estado);
-    } else if (!estado || estado !== 'all') {
-      // Si no es admin o no se especificó 'all', mostrar solo las aprobadas
-      if (!isAdminUser) {
-        conditions.push('c.estado = ?');
-        params.push('aprobada');
-      }
+    } else if (!isAdminUser) {
+      // Si no es admin, mostrar solo las aprobadas
+      conditions.push('c.estado = ?');
+      params.push('aprobada');
     }
 
     // Filtrar por no revisadas (solo para admin)
@@ -88,6 +99,7 @@ export async function GET(req) {
 
     return NextResponse.json(result.rows, { status: 200 });
   } catch (error) {
+    console.error("Error al obtener consultas:", error);
     return NextResponse.json(
       { error: "Error interno del servidor" },
       { status: 500 }
@@ -153,6 +165,7 @@ export async function POST(request) {
       { status: 201 }
     );
   } catch (error) {
+    console.error("Error al crear consulta:", error);
     return NextResponse.json(
       { error: "Error interno del servidor" },
       { status: 500 }
@@ -160,94 +173,46 @@ export async function POST(request) {
   }
 }
 
-// Actualizar una consulta (solo admin)
+// Actualizar una consulta (solo admin, solo campo reportada)
 export async function PUT(request) {
   // Verificar que el usuario es administrador
-  const authResult = await isAdmin(request);
-  if (authResult.error) {
-    return NextResponse.json({ error: authResult.error }, { status: authResult.status });
+  const isAdminUser = await checkAdminUser(request);
+  if (!isAdminUser) {
+    return NextResponse.json(
+      { error: "Acceso denegado" },
+      { status: 403 }
+    );
   }
 
   try {
     const data = await request.json();
     
-    // Validar ID de consulta
-    if (!data.id_consulta) {
+    // Validar ID de consulta y campo reportada
+    if (!data.id_consulta || data.reportada === undefined) {
       return NextResponse.json(
-        { error: "Se requiere el ID de la consulta" },
+        { error: "Se requiere el ID de la consulta y el campo reportada" },
         { status: 400 }
       );
     }
 
-    // Construir query dinámicamente basado en los campos proporcionados
-    let updateFields = [];
-    let params = [];
+    // Convertir el valor booleano a 0/1 para la base de datos
+    const reportadaValue = data.reportada ? 1 : 0;
 
-    if (data.titulo !== undefined) {
-      updateFields.push("titulo = ?");
-      params.push(data.titulo);
-    }
-    
-    if (data.descripcion !== undefined) {
-      updateFields.push("descripcion = ?");
-      params.push(data.descripcion);
-    }
-    
-    if (data.estado !== undefined) {
-      updateFields.push("estado = ?");
-      params.push(data.estado);
-    }
-    
-    if (data.revisada !== undefined) {
-      updateFields.push("revisada = ?");
-      params.push(data.revisada ? 1 : 0);
-    }
-    
-    if (data.reportada !== undefined) {
-      updateFields.push("reportada = ?");
-      params.push(data.reportada ? 1 : 0);
-    }
-    
-    if (data.id_materia !== undefined) {
-      // Verificar que la materia existe
-      const materiaQuery = "SELECT id_materia FROM materias WHERE id_materia = ?";
-      const materiaResult = await db.execute(materiaQuery, [data.id_materia]);
-
-      if (!materiaResult.rows.length) {
-        return NextResponse.json(
-          { error: "La materia especificada no existe" },
-          { status: 404 }
-        );
-      }
-      
-      updateFields.push("id_materia = ?");
-      params.push(data.id_materia);
-    }
-
-    // Si no hay campos para actualizar
-    if (updateFields.length === 0) {
-      return NextResponse.json(
-        { error: "No se proporcionaron campos para actualizar" },
-        { status: 400 }
-      );
-    }
-
-    // Agregar el ID de la consulta a los parámetros
-    params.push(data.id_consulta);
-
+    // Actualizar solo el campo reportada
     const query = `
       UPDATE consultas 
-      SET ${updateFields.join(", ")} 
+      SET reportada = ? 
       WHERE id_consulta = ?
     `;
 
-    await db.execute(query, params);
+    await db.execute(query, [reportadaValue, data.id_consulta]);
     
     return NextResponse.json(
       { message: "Consulta actualizada correctamente" },
       { status: 200 }
     );
   } catch (error) {
+    console.error("Error al actualizar consulta:", error);
     return NextResponse.json(
       { error: "Error interno del servidor" },
       { status: 500 }
@@ -258,9 +223,12 @@ export async function PUT(request) {
 // Eliminar una consulta (solo admin)
 export async function DELETE(request) {
   // Verificar que el usuario es administrador
-  const authResult = await isAdmin(request);
-  if (authResult.error) {
-    return NextResponse.json({ error: authResult.error }, { status: authResult.status });
+  const isAdminUser = await checkAdminUser(request);
+  if (!isAdminUser) {
+    return NextResponse.json(
+      { error: "Acceso denegado" },
+      { status: 403 }
+    );
   }
 
   try {
@@ -298,6 +266,7 @@ export async function DELETE(request) {
       { status: 200 }
     );
   } catch (error) {
+    console.error("Error al eliminar consulta:", error);
     return NextResponse.json(
       { error: "Error interno del servidor" },
       { status: 500 }

@@ -15,12 +15,12 @@ export async function POST(request) {
     }
 
     // Verificar que la respuesta existe
-    const respuestaQuery = "SELECT id_respuesta, id_consulta FROM respuestas WHERE id_respuesta = ?";
-    const respuestaResult = await db.execute(respuestaQuery, [data.id_respuesta]);
+    const checkQuery = "SELECT id_respuesta FROM respuestas WHERE id_respuesta = ?";
+    const checkResult = await db.execute(checkQuery, [data.id_respuesta]);
 
-    if (!respuestaResult.rows.length) {
+    if (!checkResult.rows.length) {
       return NextResponse.json(
-        { error: "La respuesta especificada no existe" },
+        { error: "La respuesta no existe" },
         { status: 404 }
       );
     }
@@ -29,44 +29,12 @@ export async function POST(request) {
     const updateQuery = "UPDATE respuestas SET votos = votos + 1 WHERE id_respuesta = ?";
     await db.execute(updateQuery, [data.id_respuesta]);
     
-    // Verificar si esta respuesta ahora tiene más votos que cualquier otra en la misma consulta
-    const idConsulta = respuestaResult.rows[0].id_consulta;
-    
-    // Obtener la respuesta con más votos
-    const maxVotosQuery = `
-      SELECT id_respuesta, votos 
-      FROM respuestas 
-      WHERE id_consulta = ? 
-      ORDER BY votos DESC 
-      LIMIT 1
-    `;
-    const maxVotosResult = await db.execute(maxVotosQuery, [idConsulta]);
-    
-    if (maxVotosResult.rows.length > 0) {
-      const respuestaConMasVotos = maxVotosResult.rows[0];
-      
-      // Si la respuesta con más votos tiene al menos 3 votos, marcarla como solución
-      if (respuestaConMasVotos.votos >= 3) {
-        // Primero, desmarcar todas las respuestas como solución
-        await db.execute(
-          "UPDATE respuestas SET es_solucion = 0 WHERE id_consulta = ?", 
-          [idConsulta]
-        );
-        
-        // Luego, marcar la respuesta con más votos como solución
-        await db.execute(
-          "UPDATE respuestas SET es_solucion = 1 WHERE id_respuesta = ?", 
-          [respuestaConMasVotos.id_respuesta]
-        );
-      }
-    }
-    
     return NextResponse.json(
       { message: "Voto registrado correctamente" },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error al votar por la respuesta:", error);
+    console.error("Error al votar:", error);
     return NextResponse.json(
       { error: "Error interno del servidor" },
       { status: 500 }

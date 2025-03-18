@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
 import Link from "next/link"
-import { ChevronLeftIcon, FileTextIcon, Link2Icon, VideoIcon } from "lucide-react"
+import { ChevronLeftIcon } from "lucide-react"
 import calculateProgress from "@/hooks/calculateProgress"
 import { Link as LucideLink } from 'lucide-react'
 

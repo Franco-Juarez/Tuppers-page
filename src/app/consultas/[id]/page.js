@@ -7,13 +7,20 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { MessageSquare, CheckCircle, Clock, AlertCircle, ArrowLeft, ThumbsUp, Flag } from 'lucide-react'
-import Link from 'next/link'
+import { CheckCircle, Clock, AlertCircle, ArrowLeft, ThumbsUp } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { use } from 'react'
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 export default function ConsultaPage({ params }) {
   const [consulta, setConsulta] = useState(null)
@@ -24,6 +31,8 @@ export default function ConsultaPage({ params }) {
   const [votando, setVotando] = useState(false)
   const [error, setError] = useState(null)
   const [mensaje, setMensaje] = useState(null)
+  const [reportDialogOpen, setReportDialogOpen] = useState(false)
+  const [contentToReport, setContentToReport] = useState({ type: '', id: null })
   const router = useRouter()
   
   // Usar React.use() para desenvolver los parámetros
@@ -155,8 +164,16 @@ export default function ConsultaPage({ params }) {
     }
   }
   
-  const handleReportar = async (type, id) => {
+  const handleReportar = (type, id) => {
+    // Establecer el contenido a reportar y abrir el diálogo
+    setContentToReport({ type, id });
+    setReportDialogOpen(true);
+  }
+  
+  const confirmReport = async () => {
     try {
+      const { type, id } = contentToReport;
+      
       const response = await fetch('/api/reportar', {
         method: 'POST',
         headers: {
@@ -171,13 +188,15 @@ export default function ConsultaPage({ params }) {
       const data = await response.json()
       
       if (!response.ok) {
-        throw new Error(data.error || `Error al reportar ${tipo}`)
+        throw new Error(data.error || `Error al reportar ${type}`)
       }
       
       setMensaje(`${type === 'consulta' ? 'Consulta' : 'Respuesta'} reportada correctamente`)
+      setReportDialogOpen(false)
     } catch (error) {
       console.error('Error:', error)
       setError(error.message)
+      setReportDialogOpen(false)
     }
   }
   
@@ -389,6 +408,32 @@ export default function ConsultaPage({ params }) {
           </CardContent>
         </Card>
       )}
+      
+      {/* Diálogo de confirmación para reportar */}
+      <Dialog open={reportDialogOpen} onOpenChange={setReportDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Confirmar reporte</DialogTitle>
+            <DialogDescription>
+              ¿Estás seguro que deseas reportar esta {contentToReport.type === 'consulta' ? 'consulta' : 'respuesta'} como contenido inapropiado?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-muted-foreground">
+              Al reportar, los administradores serán notificados para revisar este contenido.
+              Utiliza esta función solo para reportar contenido que consideres ofensivo o que viole las normas de la comunidad.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setReportDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button type="button" variant="destructive" onClick={confirmReport}>
+              Sí, reportar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

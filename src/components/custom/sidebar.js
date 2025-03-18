@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { 
   Home, 
   BookOpen, 
@@ -46,43 +45,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
 
-  useEffect(() => {
-    // Verificar si el usuario es admin mediante una llamada a la API
-    const checkAdmin = async () => {
-      try {
-        const response = await fetch('/api/admin/verify', {
-          credentials: 'include' // Importante para incluir cookies
-        });
-        
-        if (response.ok) {
-          setIsAdmin(true);
-        } else {
-          setIsAdmin(false);
-        }
-      } catch (error) {
-        console.error('Error al verificar admin:', error);
-        setIsAdmin(false);
-      }
-    };
-    
-    checkAdmin();
-  }, []);
-
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/admin/logout', {
-        method: 'POST',
-        credentials: 'include'
-      });
-      
-      setIsAdmin(false);
-      router.push('/');
-    } catch (error) {
-      console.error('Error al cerrar sesión:', error);
-    }
-  };
 
   return (
     <>
