@@ -19,7 +19,7 @@ export async function GET(req) {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // 4. Obtener usuario de la base de datos
-    const result = await db.execute('SELECT * FROM users WHERE id = ?', [decoded.userId]);
+    const result = await db.execute('SELECT * FROM usuarios_autorizados WHERE id = ?', [decoded.userId]);
     const user = result.rows[0];
 
     // 5. Respuesta condicional
