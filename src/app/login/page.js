@@ -10,7 +10,7 @@ import { AlertCircle } from "lucide-react";
 
 export default function Login() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
+  const [mail, setMail] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -25,7 +25,7 @@ export default function Login() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ mail }),
       });
 
       const data = await response.json();
@@ -57,13 +57,13 @@ export default function Login() {
             <form onSubmit={handleSubmit}>
               <div className="grid gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="mail">Email</Label>
                   <Input
-                    id="email"
+                    id="mail"
                     placeholder="nombre@ejemplo.com"
                     type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={mail}
+                    onChange={(e) => setMail(e.target.value)}
                     required
                   />
                 </div>
