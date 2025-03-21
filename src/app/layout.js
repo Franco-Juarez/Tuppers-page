@@ -26,7 +26,7 @@ export default function RootLayout({ children }) {
               </div>
               <h2 className="text-lg font-semibold">Tecnicatura Universitaria en Programación</h2>
             </header>
-            <main className="flex-1 p-6">
+            <main className="flex-1 p-6 bg-muted/40">
               {children}
             </main>
           </div>

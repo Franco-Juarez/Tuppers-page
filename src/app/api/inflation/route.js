@@ -1,10 +1,5 @@
 export async function GET() {
-  try {
-    // Fetch inflation data from a public API
-    // Using the INDEC API for inflation data
-    // This is a mock response based on real inflation data from Argentina
-    // In a real scenario, you would fetch this from an actual API
-    
+  try {    
     const inflationData = [
       { month: "Apr", inflation: 8.8 },
       { month: "May", inflation: 4.2 },
@@ -16,8 +11,7 @@ export async function GET() {
       { month: "Nov", inflation: 2.4 },
       { month: "Dic", inflation: 2.7 },
       { month: "Ene", inflation: 2.2 },
-      { month: "Feb", inflation: 2.2 },
-      { month: "Mar", inflation: 2.2 },
+      { month: "Feb", inflation: 2.4 },
     ];
 
     // Calculate accumulated inflation

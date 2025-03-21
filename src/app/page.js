@@ -50,9 +50,8 @@ export default function Dashboard () {
   }, [])
 
   return (
-    <div className="min-h-screen bg-muted/40">
-
-      <main className="py-8 px-4 lg:px-10">
+    <div className="min-h-screen">
+      <section>
 
         <DashboardHeader
           fechaFormateada={fechaFormateada}
@@ -102,7 +101,7 @@ export default function Dashboard () {
             <PriceChart />
           </Card>
         </div>
-      </main >
+      </section >
     </div >
   );
 }

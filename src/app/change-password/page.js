@@ -22,7 +22,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch('/api/auth/create-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -38,6 +38,7 @@ export default function Login() {
 
       // Redirección exitosa
       router.push('/admin');
+      alert('Contraseña actualizada correctamente');
     } catch (error) {
       setError(error.message);
     } finally {
@@ -52,7 +53,7 @@ export default function Login() {
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">Acceso Admin</CardTitle>
             <CardDescription className="text-center">
-              Ingresa tu email para verificar acceso
+              Ingresa tu email y nueva contraseña
             </CardDescription>
           </CardHeader>
           <CardContent>

@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import db from '@/lib/db';
+import bcrypt from 'bcryptjs';
 
 // app/api/auth/login/route.js
 export async function POST(request) {
   try {
-    const { mail } = await request.json();
+    const { mail, password } = await request.json();
 
     // 1. Buscar usuario en la base de datos por email
     const result = await db.execute('SELECT * FROM usuarios_autorizados WHERE mail = ?', [mail]);
@@ -15,6 +16,16 @@ export async function POST(request) {
     if (!user) {
       return NextResponse.json(
         { error: "Email no encontrado" },
+        { status: 401 }
+      );
+    }
+
+    // 3. Verificar la contraseña
+    const isValidPassword = bcrypt.compareSync(password, user.contraseña);
+    
+    if (!isValidPassword) {
+      return NextResponse.json(
+        { error: "Credenciales inválidas" },
         { status: 401 }
       );
     }
