@@ -85,9 +85,9 @@ export default function ConsultasPage() {
     const fechaB = new Date(b.fecha_creacion);
     
     if (ordenamiento === 'recientes') {
-      return fechaB - fechaA; // De más reciente a más antigua
+      return fechaB - fechaA;
     } else {
-      return fechaA - fechaB; // De más antigua a más reciente
+      return fechaA - fechaB;
     }
   });
 
