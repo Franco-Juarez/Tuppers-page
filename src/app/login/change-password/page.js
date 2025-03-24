@@ -35,31 +35,29 @@ export default function ChangePassword() {
     setError('');
     setLoading(true);
 
-    // try {
-    //   const response = await fetch('/api/auth/change-password', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({ mail }),
-    //   });
+    try {
+      const response = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ mail }),
+      });
 
-    //   const data = await response.json();
+      const data = await response.json();
 
-    //   if (!response.ok) {
-    //     throw new Error(data.error || 'Error al verificar el email');
-    //   }
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al verificar el email');
+      }
 
-    //   setCode(true);
-    //   setLoading(false);
-    //   alert('Codigo enviado al mail');
-    // } catch (error) {
-    //   setError(error.message);
-    // } finally {
-    //   setLoading(false);
-    // }
-    setCode(true);
-    setLoading(false);
+      setCode(true);
+      setLoading(false);
+      alert('Codigo enviado al mail');
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCodeSubmit = async (e) => {
@@ -69,11 +67,11 @@ export default function ChangePassword() {
 
     try {
         const response = await fetch('/api/auth/verify-code', {
-            method: 'POST',
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ code: codeValue }),
+            body: JSON.stringify({ codeValue, mail }),
         });
 
         const data = await response.json();
@@ -86,9 +84,9 @@ export default function ChangePassword() {
         setCodeValue('');
         setLoading(false);
 
-        // // Redireccionar a login para probar nueva contraseña luego de cerrar el dialog
+        //Redireccionar a login para probar nueva contraseña luego de cerrar el dialog
         setTimeout(() => {
-            router.push('/login');
+            router.push(`/login/update-password?email=${mail}`);
         }, 3000);
     } catch(error) {
         setError(error.message);
@@ -99,7 +97,7 @@ export default function ChangePassword() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-4">
+      <div className="w-full max-w-md">
         <Card>
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">Restablecer contraseña</CardTitle>
