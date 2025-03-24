@@ -8,9 +8,19 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 
 export default function UpdatePassword() {
+    return (
+      <Suspense fallback={<div>Cargando...</div>}>
+        <UpdatePasswordContent />
+      </Suspense>
+    );
+  }
+
+
+const UpdatePasswordContent = () => {
   const router = useRouter();
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
