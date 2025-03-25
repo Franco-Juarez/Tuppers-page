@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/db';
 import bcrypt from 'bcryptjs';
+import nodemailer from 'nodemailer';
 
 const obtenerCodigo = () => Math.floor(100000 + Math.random() * 900000).toString();
 
@@ -14,9 +15,7 @@ export async function POST(request) {
         console.log(codigoRecuperacion)
 
         // PODRÍAMOS INVOCAR LA FUNCIÓN DE MANDAR MAIL ACÁ Y LE PASAMOS EL MAIL Y CÓDIGO SIN HASHEAR. 
-        // EJEMPLO: sendMail(mail, codigoRecuperacion);
-        // LA FUNCIÓN PODRÍA RETORNAR UN BOOLEANO PARA INDICAR SI EL MAIL SE ENVIÓ CORRECTAMENTE Y ASI VERIFICARLO EN ESTE CÓDIGO. SI NO SE ENVIÓ, RETORNAR UN ERROR.
-        // ¿QUÉ TE PARECE ESTA IDEA? SI SE TE OCURRE OTRA FORMA, LO CHARLAMOS Y AJUSTAMOS :)
+        sendMail(mail, codigoRecuperacion);
 
         const hashedCodigo = await bcrypt.hash(codigoRecuperacion, 10);
 
@@ -42,9 +41,30 @@ export async function PUT(request) {
     try {
         const { mail, password } = await request.json();
 
+        if (!mail || !password) {
+            return NextResponse.json({
+                success: false,
+                message: 'Datos incompletos'
+            }, { status: 400 });
+        }
+
+        if( mail === '' || password === ''){
+            return NextResponse.json({
+                success: false,
+                message: 'Datos incompletos'
+            }, { status: 400 });
+        }
+            
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const result = await db.execute('UPDATE usuarios_autorizados SET contraseña = ? WHERE mail = ?', [hashedPassword, mail]);
+
+        if (result.affectedRows === 0) {
+            return NextResponse.json({
+                success: false,
+                message: 'Email no encontrado'
+            }, { status: 400 });
+        }
         
         return NextResponse.json({
             success: true,
@@ -56,6 +76,38 @@ export async function PUT(request) {
             message: 'Error al actualizar la contraseña'
         }, { status: 500 });
     }
+}
+
+
+// FUNCIÓN PARA MANDAR MAIL CON NODEMAILER
+
+const sendMail = async (mail, password) => { 
+    let transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          type: 'OAuth2',
+          user: process.env.MAIL_USERNAME,
+          pass: process.env.MAIL_PASSWORD,
+          clientId: process.env.OAUTH_CLIENTID,
+          clientSecret: process.env.OAUTH_CLIENT_SECRET,
+          refreshToken: process.env.OAUTH_REFRESH_TOKEN
+        }
+      });
+
+      let mailOptions = {
+        from: {mail},
+        to: {password},
+        subject: 'Nodemailer Project',
+        text: 'Este es el código de recuperación de contraseña: ' + password,
+      };
+
+      transporter.sendMail(mailOptions, function(err, data) {
+        if (err) {
+          console.log("Error " + err);
+        } else {
+          console.log("Mail enviado correctamente");
+        }
+      });
 }
 
 

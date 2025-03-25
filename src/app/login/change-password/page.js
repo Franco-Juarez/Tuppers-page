@@ -20,15 +20,13 @@ DialogHeader,
 DialogTitle,
 } from "@/components/ui/dialog"
 
-// HOLA! BUENO, VAMOS CON LA PARTE DE LA RUTA Y LO CHARLAMOS AHÍ
-//aca estas?
 export default function ChangePassword() {
   const router = useRouter();
   const [mail, setMail] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [codeForm, setCodeForm] = useState(false);
-  const [codeValue, setCodeValue] = useState('');
+  const [code, setCode] = useState('');
   const [dialog, setDialog] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -72,12 +70,11 @@ export default function ChangePassword() {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ mail, codeValue }),
+            body: JSON.stringify({ mail, code }),
         });
 
         const data = await response.json();
 
-        // ACÁ REVISA QUE DEVUELVE 200
         if (!response.ok) {
           throw new Error(data.error || 'Error al verificar el codigo');
         }
@@ -85,10 +82,6 @@ export default function ChangePassword() {
         setDialog(true);
         setCode('');
         setLoading(false);
-
-        //Redireccionar a login para probar nueva contraseña luego de cerrar el dialogo
-        // ESTO ES MEDIO BARDO, PERO FIJATE QUE ESTOY REDIRECCIONANDO A LA PÁGINA DE CAMBIO DE CONTRASEÑA, 
-        // QUE ES DONDE EL USUARIO VA A INGRESAR LA NUEVA CONTRASEÑA. LA REDICCIÓN SE HACE UNA VEZ QUE EL ENDPOINT DEVUELVE UN 200.
 
         setTimeout(() => {
           router.push(`/login/update-password?email=${mail}`);

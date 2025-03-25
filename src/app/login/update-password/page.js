@@ -19,7 +19,6 @@ export default function UpdatePassword() {
     );
   }
 
-
 const UpdatePasswordContent = () => {
   const router = useRouter();
   const [password, setPassword] = useState('');
