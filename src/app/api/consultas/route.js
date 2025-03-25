@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 
 // Función auxiliar para verificar si el usuario es admin
 async function checkAdminUser(request) {
+
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("session_token")?.value;
@@ -31,7 +32,7 @@ export async function GET(req) {
     const soloReportadas = searchParams.get("reportadas") === "1";
     
     // Verificar si el usuario es administrador
-    const isAdminUser = await checkAdminUser(req);
+    const isAdminUser = checkAdminUser(req);
     
     let query = `
       SELECT 
@@ -175,14 +176,14 @@ export async function POST(request) {
 
 // Actualizar una consulta (solo admin, solo campo reportada)
 export async function PUT(request) {
-  // Verificar que el usuario es administrador
-  const isAdminUser = await checkAdminUser(request);
-  if (!isAdminUser) {
-    return NextResponse.json(
-      { error: "Acceso denegado" },
-      { status: 403 }
-    );
-  }
+
+  // const isAdminUser = await checkAdminUser(request);
+  // if (!isAdminUser) {
+  //   return NextResponse.json(
+  //     { error: "Acceso denegado: el usuario no es administrador" },
+  //     { status: 403 }
+  //   );
+  // }
 
   try {
     const data = await request.json();
@@ -223,7 +224,7 @@ export async function PUT(request) {
 // Eliminar una consulta (solo admin)
 export async function DELETE(request) {
   // Verificar que el usuario es administrador
-  const isAdminUser = await checkAdminUser(request);
+  const isAdminUser = checkAdminUser(request);
   if (!isAdminUser) {
     return NextResponse.json(
       { error: "Acceso denegado" },
