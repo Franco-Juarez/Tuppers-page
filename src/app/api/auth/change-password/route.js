@@ -15,12 +15,18 @@ export async function POST(request) {
         console.log(codigoRecuperacion)
 
         // PODRÍAMOS INVOCAR LA FUNCIÓN DE MANDAR MAIL ACÁ Y LE PASAMOS EL MAIL Y CÓDIGO SIN HASHEAR. 
-        sendMail(mail, codigoRecuperacion);
+        // NO SOLO MANDA EL MAIL, SINO QUE RETORNA UN VALOR BOOLEANO
+        const mailSended = await sendMail(mail, codigoRecuperacion);
+        if (!mailSended) {
+            return NextResponse.json({
+                message: 'Error al enviar el mail'
+            }, { status: 500 });
+        } 
 
         const hashedCodigo = await bcrypt.hash(codigoRecuperacion, 10);
 
         const resultado = await db.execute('UPDATE usuarios_autorizados SET codigo_recuperacion = ? WHERE mail = ?', [hashedCodigo, mail]);
-        
+
         return NextResponse.json({
             message: 'Codigo actualizado correctamente'
         }, { status: 200 });
@@ -48,13 +54,13 @@ export async function PUT(request) {
             }, { status: 400 });
         }
 
-        if( mail === '' || password === ''){
+        if (mail === '' || password === '') {
             return NextResponse.json({
                 success: false,
                 message: 'Datos incompletos'
             }, { status: 400 });
         }
-            
+
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const result = await db.execute('UPDATE usuarios_autorizados SET contraseña = ? WHERE mail = ?', [hashedPassword, mail]);
@@ -65,7 +71,7 @@ export async function PUT(request) {
                 message: 'Email no encontrado'
             }, { status: 400 });
         }
-        
+
         return NextResponse.json({
             success: true,
             message: 'Contraseña actualizada correctamente'
@@ -81,34 +87,40 @@ export async function PUT(request) {
 
 // FUNCIÓN PARA MANDAR MAIL CON NODEMAILER
 
-const sendMail = async (mail, password) => { 
-    let transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          type: 'OAuth2',
-          user: process.env.MAIL_USERNAME,
-          pass: process.env.MAIL_PASSWORD,
-          clientId: process.env.OAUTH_CLIENTID,
-          clientSecret: process.env.OAUTH_CLIENT_SECRET,
-          refreshToken: process.env.OAUTH_REFRESH_TOKEN
-        }
-      });
+const sendMail = async (mail, codigoRecuperacion) => {
+    try {
+        // 1. Configurar el transporter (mejor con createTransport estándar)
+        let transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                type: 'OAuth2',
+                user: process.env.MAIL_USERNAME,
+                clientId: process.env.OAUTH_CLIENTID,
+                clientSecret: process.env.OAUTH_CLIENT_SECRET,
+                refreshToken: process.env.OAUTH_REFRESH_TOKEN,
+                accessToken: process.env.OAUTH_ACCESS_TOKEN
+            }
+        });
 
-      let mailOptions = {
-        from: {mail},
-        to: {password},
-        subject: 'Nodemailer Project',
-        text: 'Este es el código de recuperación de contraseña: ' + password,
-      };
+        // 2. Configurar opciones del correo (corregir el campo 'to')
+        let mailOptions = {
+            from: process.env.MAIL_USERNAME, // Mejor usar variable de entorno
+            to: mail,
+            subject: 'Recuperación de contraseña',
+            html: `<h3>Código de recuperación</h3>
+                   <p>Este es tu código de recuperación: <strong>${codigoRecuperacion}</strong></p>` // Mejor formato HTML
+        };
 
-      transporter.sendMail(mailOptions, function(err, data) {
-        if (err) {
-          console.log("Error " + err);
-        } else {
-          console.log("Mail enviado correctamente");
-        }
-      });
-}
+        // 3. Enviar correo usando async/await
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Mensaje enviado: %s', info.messageId);
+        return true;
+
+    } catch (error) {
+        console.error('Error al enviar el correo:', error);
+        throw new Error('Falló el envío del correo'); // Propagar el error
+    }
+};
 
 
 
