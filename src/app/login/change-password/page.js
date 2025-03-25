@@ -164,10 +164,10 @@ export default function ChangePassword() {
       <Dialog open={dialog} onOpenChange={setDialog}>
         <DialogContent className="sm:max-w-md">
             <DialogHeader>
-                <DialogTitle>Código enviado al mail</DialogTitle>
+                <DialogTitle>Código validado correctamente</DialogTitle>
             </DialogHeader>
             <DialogDescription>
-                El código ha sido enviado al mail ingresado. Lo redirigiremos a la pagina de login...
+              Lo redirigiremos a la pagina de login en unos instantes...
             </DialogDescription>
         </DialogContent>
       </Dialog>
