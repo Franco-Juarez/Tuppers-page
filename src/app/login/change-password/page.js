@@ -20,13 +20,14 @@ DialogHeader,
 DialogTitle,
 } from "@/components/ui/dialog"
 
-
+// HOLA! BUENO, VAMOS CON LA PARTE DE LA RUTA Y LO CHARLAMOS AHÍ
+//aca estas?
 export default function ChangePassword() {
   const router = useRouter();
   const [mail, setMail] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [code, setCode] = useState(false);
+  const [codeForm, setCodeForm] = useState(false);
   const [codeValue, setCodeValue] = useState('');
   const [dialog, setDialog] = useState(false);
 
@@ -50,7 +51,7 @@ export default function ChangePassword() {
         throw new Error(data.error || 'Error al verificar el email');
       }
 
-      setCode(true);
+      setCodeForm(true);
       setLoading(false);
       alert('Codigo enviado al mail');
     } catch (error) {
@@ -71,23 +72,28 @@ export default function ChangePassword() {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ codeValue, mail }),
+            body: JSON.stringify({ mail, codeValue }),
         });
 
         const data = await response.json();
 
+        // ACÁ REVISA QUE DEVUELVE 200
         if (!response.ok) {
-            throw new Error(data.error || 'Error al verificar el codigo');
+          throw new Error(data.error || 'Error al verificar el codigo');
         }
 
         setDialog(true);
-        setCodeValue('');
+        setCode('');
         setLoading(false);
 
-        //Redireccionar a login para probar nueva contraseña luego de cerrar el dialog
+        //Redireccionar a login para probar nueva contraseña luego de cerrar el dialogo
+        // ESTO ES MEDIO BARDO, PERO FIJATE QUE ESTOY REDIRECCIONANDO A LA PÁGINA DE CAMBIO DE CONTRASEÑA, 
+        // QUE ES DONDE EL USUARIO VA A INGRESAR LA NUEVA CONTRASEÑA. LA REDICCIÓN SE HACE UNA VEZ QUE EL ENDPOINT DEVUELVE UN 200.
+
         setTimeout(() => {
-            router.push(`/login/update-password?email=${mail}`);
+          router.push(`/login/update-password?email=${mail}`);
         }, 3000);
+
     } catch(error) {
         setError(error.message);
     } finally {
@@ -102,7 +108,7 @@ export default function ChangePassword() {
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">Restablecer contraseña</CardTitle>
             <CardDescription className="text-center">
-                {code ? (
+                {codeForm ? (
                     <p>Ingresá el codigo enviado al mail</p>
                 ) : (
                     <p>Ingresá tu email para verificar acceso</p>
@@ -110,9 +116,9 @@ export default function ChangePassword() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {code ? (
+            {codeForm ? (
                 <form className="space-y-4" onSubmit={handleCodeSubmit}>
-                    <InputOTP maxLength={6} value={codeValue} onChange={(value) => setCodeValue(value)}>
+                    <InputOTP maxLength={6} value={code} onChange={(value) => setCode(value)}>
                         <InputOTPGroup className="mx-auto">
                             <InputOTPSlot index={0} />
                             <InputOTPSlot index={1} />

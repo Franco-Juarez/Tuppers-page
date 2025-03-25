@@ -10,7 +10,8 @@ import bcrypt from 'bcryptjs';
 // Si son iguales redirecciona a la pagina de actualizar usuario.
 export async function PUT(request) {
     try {
-        const { mail, codigo} = await request.json();
+        const { mail, codigo } = await request.json();
+        console.log(mail, codigo);
 
         const [rows] = await db.execute('SELECT codigo_recuperacion FROM usuarios_autorizados WHERE mail = ? AND codigo_recuperacion IS NOT NULL', [mail]);
 
@@ -18,13 +19,24 @@ export async function PUT(request) {
 
         const esIgual = await bcrypt.compare(codigo, codigoHasheado);
 
-        if (esIgual) {
-            return //redireccionar;
-        } else {
-            return NextResponse.json({ success: false, message: "Código incorrecto" });
-        }
 
+        // ACÁ HICE UNOS AJUSTES PARA QUE DEVUELVA EL STATUS QUE FALTABA, EL RESTO JOYA!
+        // AHORA LO QUQ QUIERO PROBAR ES QUE SI EL CODIGO ES CORRECTO, REDIRECCIONE A LA PÁGINA DE CAMBIO DE CONTRASEÑA. PERO, COMO NO TENEMOS LO DEL MAIL, LO ESTOY MOSTRANDO POR CONSOLA.
+        // POR CONSOLA, JEJE. 
+        // ah joya, una vez que tengamos la pagina se redireccionaria ahi, que seria la funcion de cambiar la contrasenia en change-password no?
+        // AHÍ TE MUESTRO COMO ES ESO. VAMOS AL ARCHIVO LOGIN/CHANGE-PASSWORD/PAGE.JS Y CHARLAMOS AHÍ
+        if (esIgual) {
+            return NextResponse.json({
+                message: 'Codigo verificado correctamente'
+            }, { status: 200 });
+        } else {
+            return NextResponse.json({
+                message: 'Codigo incorrecto'
+            }, { status: 401 });
+        }
     } catch (error) {
-        return NextResponse.json({ success: false, message: "Error al verificar el código" });
+        return NextResponse.json({
+            message: 'Error al verificar el codigo'
+        }, { status: 500 });
     }
 }

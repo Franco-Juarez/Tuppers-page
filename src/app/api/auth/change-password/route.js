@@ -11,6 +11,7 @@ export async function POST(request) {
         const { mail } = await request.json();
 
         const codigoRecuperacion = obtenerCodigo();
+        console.log(codigoRecuperacion)
 
         // PODRÍAMOS INVOCAR LA FUNCIÓN DE MANDAR MAIL ACÁ Y LE PASAMOS EL MAIL Y CÓDIGO SIN HASHEAR. 
         // EJEMPLO: sendMail(mail, codigoRecuperacion);
