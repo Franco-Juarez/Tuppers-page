@@ -105,7 +105,7 @@ export default function PaginaMateria ({ params }) {
 
   return (
     <div className="min-h-screen bg-muted/40">
-      <main className="py-8 px-10">
+      <main className="py-2 px-2">
         <header className="mb-8">
           <div className="flex flex-col-reverse items-start lg:items-center lg:flex-row justify-between gap-4">
             <h1 className="text-3xl font-bold tracking-tight">{materia.nombre || 'Materia'}</h1>
@@ -129,15 +129,15 @@ export default function PaginaMateria ({ params }) {
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Horario</p>
-                    <p className="font-medium">{materia.horarioCursada || 'No especificado'}</p>
+                    <p className="font-medium text-sm">{materia.horarioCursada || 'No especificado'}</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Profesor</p>
-                    <p className="font-medium">{materia.profesor || 'No especificado'}</p>
+                    <p className="font-medium text-sm">{materia.profesor || 'No especificado'}</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Email</p>
-                    <p className="font-medium">{materia.email || 'No especificado'}</p>
+                    <p className="font-medium text-sm">{materia.email || 'No especificado'}</p>
                   </div>
                 </div>
               </CardContent>
@@ -149,11 +149,14 @@ export default function PaginaMateria ({ params }) {
               <CardContent className="space-y-4">
                 {exams && exams.length > 0 ? (
                   exams.map((exam) => (
-                    <div key={exam.id_examen} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div>
+                    <div key={exam.id_examen} className="flex items-start justify-between p-4 border rounded-lg">
+                      <div className='pr-2 flex flex-col gap-2'> 
                         <p className="font-medium">{exam.titulo}</p>
                         <p className="text-sm text-muted-foreground">
                           Entrega: {new Date(exam.fechaEntrega).toLocaleDateString()}
+                        </p>
+                        <p className="text-sm text-muted-foreground"> 
+                          {exam.consigna}
                         </p>
                       </div>
                       <Badge variant={
@@ -166,7 +169,9 @@ export default function PaginaMateria ({ params }) {
                     </div>
                   ))
                 ) : (
-                  <p className="text-muted-foreground">No hay tareas o entregas disponibles</p>
+                  <p className="text-muted-foreground">
+                    'No hay tareas o entregas para esta materia'
+                  </p>
                 )}
               </CardContent>
             </Card>

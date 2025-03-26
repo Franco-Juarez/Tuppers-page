@@ -25,7 +25,6 @@ export default function Dashboard () {
       try {
         const response = await fetch('./api/materias')
         const result = await response.json()
-        console.log(result)
         setMaterias(result)
       } catch (error) {
         console.error("Error al obtener las materias:", error)

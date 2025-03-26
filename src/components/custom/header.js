@@ -31,7 +31,7 @@ export function DashboardHeader ({ fechaFormateada, loading, exams = [] }) {
 
       <div>
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Exámenes Próximos</h2>
+          <h2 className="text-lg font-semibold">Próximos Exámenes</h2>
           {exams.length > 0 && (
             <Badge variant="secondary" className="font-normal">
               {exams.length} {exams.length === 1 ? "examen" : "exámenes"}
@@ -73,9 +73,9 @@ export function DashboardHeader ({ fechaFormateada, loading, exams = [] }) {
                       <div className="flex items-start justify-between gap-2">
                         <div className="space-y-1.5">
                           <h3 className="font-medium">{exam.titulo}</h3>
-                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                            <Clock className="h-3.5 w-3.5" />
-                            <span>{exam.fechaEntrega}</span>
+                          <div className="flex flex-col items-start gap-1.5 text-xs text-muted-foreground">
+                            <span className="flex gap-1 " ><Clock className="h-3.5 w-3.5" /> {exam.fechaEntrega}</span>
+                            <span>{exam.materia}</span>
                           </div>
                         </div>
 

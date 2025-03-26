@@ -8,6 +8,7 @@ import {  AlertCircle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useMediaQuery } from "@/hooks/use-media-query"
+import Link from "next/link"
 
 const CustomCalendar = ({ exams = [] }) => {
   const [examDates, setExamDates] = useState([])
@@ -113,6 +114,43 @@ const CustomCalendar = ({ exams = [] }) => {
                 // Determine if this is an urgent exam (within 3 days)
                 const isUrgent =
                   exam && (new Date(exam.fechaEntrega).getTime() - today.getTime()) / (1000 * 60 * 60 * 24) <= 3
+                
+                  const formatDateForTooltip = (date) => {
+                    // Crear la fecha explícitamente para evitar problemas de zona horaria
+                    const [year, month, day] = date.split('-').map(Number);
+                    const examDate = new Date(year, month - 1, day); // mes es 0-indexado
+                    
+                    // Establecer la hora del medio día para evitar problemas de zona horaria
+                    examDate.setHours(12, 0, 0, 0);
+                    
+                    return examDate.toLocaleDateString("es-ES", {
+                      weekday: "long",
+                      year: "numeric", 
+                      month: "long",
+                      day: "numeric",
+                    });
+                  };
+
+                  const generateGoogleCalendarLink = (exam) => {
+                    // Parse the date explicitly to avoid timezone issues
+                    const [year, month, day] = exam.fechaEntrega.split('-').map(Number);
+                    
+                    // Create start date at noon to prevent timezone-related shifts
+                    const startDate = new Date(year, month - 1, day, 12, 0, 0);
+                    
+                    // Create end date (1 hour later) also at noon
+                    const endDate = new Date(year, month - 1, day, 13, 0, 0);
+                    
+                    // Convert to ISO string and remove timezone-related characters
+                    const formattedStartDate = startDate.toISOString().replace(/-|:|\.\d+/g, "");
+                    const formattedEndDate = endDate.toISOString().replace(/-|:|\.\d+/g, "");
+                    
+                    const title = encodeURIComponent(exam.titulo);
+                    const details = encodeURIComponent(`Materia: ${exam.materia}`);
+                    const location = encodeURIComponent("Online");
+                    
+                    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${formattedStartDate}/${formattedEndDate}&details=${details}&location=${location}`;
+                  };
 
                 return (
                   <Tooltip>
@@ -140,12 +178,7 @@ const CustomCalendar = ({ exams = [] }) => {
                       {exam ? (
                         <div className="space-y-1.5 bg-slate-900">
                           <div className="p-2 text-xs font-medium">
-                            {new Date(exam.fechaEntrega).toLocaleDateString("es-ES", {
-                              weekday: "long",
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            })}
+                          {formatDateForTooltip(exam.fechaEntrega)}
                           </div>
                           <div className="p-3 space-y-2 bg-slate-900">
                             <div className="flex items-start gap-2">
@@ -157,6 +190,16 @@ const CustomCalendar = ({ exams = [] }) => {
                                 </Badge>
                               </div>
                             </div>
+                            <Badge variant="outline" className="mt-1 text-xs text-white hover:bg-green-500 hover:border-green-500">
+                              <Link
+                              href={generateGoogleCalendarLink(exam)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs"
+                              >
+                                Agregar a Google Calendar
+                              </Link>
+                            </Badge>
                           </div>
                         </div>
                       ) : (
