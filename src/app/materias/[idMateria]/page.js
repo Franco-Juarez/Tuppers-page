@@ -33,6 +33,22 @@ export default function PaginaMateria ({ params }) {
     }
   }
 
+    // Función para ajustar la fecha a la zona horaria local y formatearla
+  const formatDate = (dateString) => {
+      // Parse the date explicitly to avoid timezone issues
+    const [year, month, day] = dateString.split('-').map(Number);
+    
+    // Create a Date object at noon to prevent timezone shifts
+    const date = new Date(year, month - 1, day, 12, 0, 0);
+    
+    // Use toLocaleDateString to format in dd/mm/yyyy
+    return date.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
   useEffect(() => {
     async function fetchMateria () {
       try {
@@ -153,7 +169,7 @@ export default function PaginaMateria ({ params }) {
                       <div className='pr-2 flex flex-col gap-2'> 
                         <p className="font-medium">{exam.titulo}</p>
                         <p className="text-sm text-muted-foreground">
-                          Entrega: {new Date(exam.fechaEntrega).toLocaleDateString()}
+                          Entrega: {formatDate(exam.fechaEntrega)}
                         </p>
                         <p className="text-sm text-muted-foreground"> 
                           {exam.consigna}

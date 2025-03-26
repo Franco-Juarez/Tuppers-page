@@ -69,12 +69,11 @@ const CustomCalendar = ({ exams = [] }) => {
       <CardContent className="p-0">
         <TooltipProvider>
           <Calendar
-            mode="single"
             className="rounded-md border-0 sm:border"
-            fixedWeeks
             numberOfMonths={getNumberOfMonths()}
-            weekStartsOn={1}
+            mode="multiple"
             month={currentMonth}
+            fixedWeeks={true}
             onMonthChange={handleMonthChange}
             classNames={{
               months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
