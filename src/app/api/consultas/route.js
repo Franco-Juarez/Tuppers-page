@@ -45,6 +45,8 @@ export async function GET(req) {
         c.estado,
         c.revisada,
         c.reportada,
+        c.nombre_autor,
+        c.email_autor,
         (SELECT COUNT(*) FROM respuestas WHERE id_consulta = c.id_consulta) as num_respuestas
       FROM consultas c
       LEFT JOIN materias m ON c.id_materia = m.id_materia

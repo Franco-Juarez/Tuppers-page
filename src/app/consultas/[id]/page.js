@@ -20,6 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import Link from 'next/link'
 
 export default function ConsultaPage({ params }) {
   const [consulta, setConsulta] = useState(null)
@@ -264,7 +265,7 @@ export default function ConsultaPage({ params }) {
             {' • '}
             {consulta.materia}
             {consulta.nombre_autor && (
-              <span className="ml-2">• Por: {consulta.nombre_autor}</span>
+              <span className="ml-2">• Por: <Link className='hover:text-red-500' href={`mailto:${consulta.email_autor}`}>{consulta.nombre_autor}</Link></span>
             )}
           </CardDescription>
         </CardHeader>

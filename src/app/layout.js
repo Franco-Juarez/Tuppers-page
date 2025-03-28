@@ -1,6 +1,10 @@
 import { AuthProvider } from "@/context/auth";
 import "./globals.css";
 import { Sidebar } from "@/components/custom/sidebar";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { ChevronLeftIcon } from "lucide-react";
+import { LayoutHeader } from "@/components/custom/layout-header";
 
 export const metadata = {
   title: "Tuppers",
@@ -8,6 +12,7 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+
   return (
     <html lang="es">
       <body className="antialiased">
@@ -24,7 +29,7 @@ export default function RootLayout({ children }) {
               <div className="md:hidden">
                 <Sidebar />
               </div>
-              <h2 className="text-lg font-semibold">Tecnicatura Universitaria en Programación</h2>
+              <LayoutHeader />
             </header>
             <main className="flex-1 p-6 bg-muted/40">
               {children}

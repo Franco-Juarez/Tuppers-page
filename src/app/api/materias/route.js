@@ -17,7 +17,10 @@ export async function GET (req) {
         fechaFinal, 
         horarioCursada, 
         descripcion, 
-        recursos 
+        recursos,
+        linkZoom,
+        ayudantes,
+        aula 
       FROM materias`;
 
     let params = [];

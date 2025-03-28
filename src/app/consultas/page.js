@@ -98,6 +98,8 @@ export default function ConsultasPage() {
     setOrdenamiento('recientes');
   };
 
+  console.log(consultas)
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -243,7 +245,7 @@ export default function ConsultasPage() {
                   </p>
                 </CardContent>
                 <CardFooter className="text-xs text-muted-foreground">
-                  Creada el {formatearFecha(consulta.fecha_creacion)}
+                  <p>Creada el {formatearFecha(consulta.fecha_creacion)} por <Link className='hover:text-red-500' href={`mailto:${consulta.email_autor}`}>{consulta.nombre_autor}</Link></p>
                 </CardFooter>
               </Card>
             </Link>

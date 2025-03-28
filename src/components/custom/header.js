@@ -54,7 +54,7 @@ export function DashboardHeader ({ fechaFormateada, loading, exams = [] }) {
             </div>
           </div>
         ) : (
-          <ScrollArea className="max-h-[300px] pb-2">
+          <ScrollArea className="md:max-h-[330px] pb-2">
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
               {exams.map((exam, index) => (
                 <Link

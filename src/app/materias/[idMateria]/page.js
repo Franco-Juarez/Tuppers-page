@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
 import Link from "next/link"
-import { ChevronLeftIcon } from "lucide-react"
 import calculateProgress from "@/hooks/calculateProgress"
 import { Link as LucideLink } from 'lucide-react'
+import { Video } from 'lucide-react'
 
 export default function PaginaMateria ({ params }) {
   const [exams, setExams] = useState([])
@@ -55,7 +55,6 @@ export default function PaginaMateria ({ params }) {
         const response = await fetch(`/api/materias?idMateria=${idMateria}`);
         if (!response.ok) throw new Error('Materia no encontrada');
         const result = await response.json();
-
         // API returns an array, so we need the first item
         if (!result || result.length === 0) {
           notFound();
@@ -65,8 +64,7 @@ export default function PaginaMateria ({ params }) {
         const materiaData = result[0]; // Get the first item from the array
 
         const correlatividadData = await getCorrelatividad(materiaData.id_materia);
-        console.log(correlatividadData);
-
+      
         // Agrega esta línea para guardar las correlatividades en el estado
         setCorrelatividades(correlatividadData);
 
@@ -102,7 +100,12 @@ export default function PaginaMateria ({ params }) {
 
       try {
         const response = await fetch(`/api/exams?idMateria=${materia.id_materia}`);
-        if (!response.ok) throw new Error('Error al obtener exámenes');
+
+        // Si no hay examenes, no se lanza un error
+        if (!response.ok) {
+          setExams([]);
+          return;
+        }
         const result = await response.json();
         setExams(result || []);
       } catch (error) {
@@ -125,12 +128,14 @@ export default function PaginaMateria ({ params }) {
         <header className="mb-8">
           <div className="flex flex-col-reverse items-start lg:items-center lg:flex-row justify-between gap-4">
             <h1 className="text-3xl font-bold tracking-tight">{materia.nombre || 'Materia'}</h1>
-            <Button className='p-0 md:p-2' asChild variant="ghost" size="sm">
-              <Link href="/">
-                <ChevronLeftIcon className="mr-2 h-4 w-4" />
-                Volver al Dashboard
-              </Link>
-            </Button>
+            <div>
+              <Button className='p-0 md:p-2' asChild size="sm">
+                <Link href={`${materia.linkZoom}`} target="_blank" className="flex items-center gap-2 p-4">
+                  <Video className="mr-1 h-4 w-4" />
+                  Clase virtual 
+                </Link>
+              </Button>
+            </div>
           </div>
           <p className="text-muted-foreground mt-2">{materia.descripcion}</p>
         </header>
@@ -153,7 +158,17 @@ export default function PaginaMateria ({ params }) {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Email</p>
-                    <p className="font-medium text-sm">{materia.email || 'No especificado'}</p>
+                    <Link href={`mailto:${materia.email}`} className="font-medium text-sm">{materia.email || 'No especificado'}</Link>
+                  </div>
+                </div>
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Aula</p>
+                    <p className="font-medium text-sm">{materia.aula || 'No especificado'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Ayudantes</p>
+                    <p className="font-medium text-sm">{materia.ayudantes || 'No especificado'}</p>
                   </div>
                 </div>
               </CardContent>
@@ -197,11 +212,11 @@ export default function PaginaMateria ({ params }) {
               <CardHeader>
                 <CardTitle>Recursos de la materia</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 flex flex-col items-start">
                 {materia.recursos ? (
                   <Link
                     target='_blank'
-                    className='hover:text-muted-foreground flex gap-1'
+                    className='hover:text-green-500 hover:bg-transparent border-2 border-green-500 flex gap-1 bg-green-500 p-2 rounded-lg text-white align-left font-semibold'
                     href={materia.recursos}
                   >
                     <LucideLink />
