@@ -24,6 +24,7 @@ export function PriceChart () {
     { month: "Ene", Cuota: 77900 },
     { month: "Feb", Cuota: 77900 },
     { month: "Mar", Cuota: 80300 },
+    { month: "Apr", Cuota: 80300 },
   ])
   const [inflationData, setInflationData] = useState([])
   const [combinedData, setCombinedData] = useState([])
