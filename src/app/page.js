@@ -87,7 +87,7 @@ export default function Dashboard () {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 items-start gap-4">
           <Card className="flex flex-col justify-center lg:col-span-2">
-            <CardHeader>
+            <CardHeader className="px-8 md:px-4">
               <CardTitle className="flex items-center gap-2">
                 <CalendarDays className="h-5 w-5" /> Calendario Académico
               </CardTitle>

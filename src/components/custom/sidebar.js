@@ -33,12 +33,7 @@ const routes = [
     label: "Consultas",
     icon: MessageSquare,
     href: "/consultas",
-  },
-  {
-    label: "Calendario",
-    icon: Calendar,
-    href: "/calendario",
-  },
+  }
 ];
 
 export function Sidebar() {
