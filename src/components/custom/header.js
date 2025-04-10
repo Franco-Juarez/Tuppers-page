@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
-export function DashboardHeader ({ fechaFormateada, loading, exams = [] }) {
+export function DashboardHeader({ fechaFormateada, loading, exams = [] }) {
 
   return (
     <div className="space-y-6 rounded-lg border bg-card p-6 shadow-sm">
@@ -56,42 +56,44 @@ export function DashboardHeader ({ fechaFormateada, loading, exams = [] }) {
         ) : (
           <ScrollArea className="md:max-h-[330px] pb-2">
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
-              {exams.map((exam, index) => (
-                <Link
-                  key={index}
-                  href={`/materias/${exam.id_materia}`}
-                  target="_blank"
-                  className="focus:border-none visited:border-none block transition-opacity hover:opacity-90 "
-                >
-                  <Card className={`h-full overflow-hidden ${index === 0 ? "border-destructive/50" : ""}`}>
-                    {index === 0 && (
-                      <div className="bg-destructive px-3 py-1 text-center text-xs font-medium text-destructive-foreground">
-                        Urgente
-                      </div>
-                    )}
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="space-y-1.5">
-                          <h3 className="font-medium">{exam.titulo}</h3>
-                          <div className="flex flex-col items-start gap-1.5 text-xs text-muted-foreground">
-                            <span className="flex gap-1 " ><Clock className="h-3.5 w-3.5" /> {exam.fechaEntrega}</span>
-                            <span>{exam.materia}</span>
-                          </div>
+              {exams
+                .sort((a, b) => new Date(a.fechaEntrega) - new Date(b.fechaEntrega))
+                .map((exam, index) => (
+                  <Link
+                    key={index}
+                    href={`/materias/${exam.id_materia}`}
+                    target="_blank"
+                    className="focus:border-none visited:border-none block transition-opacity hover:opacity-90 "
+                  >
+                    <Card className={`h-full overflow-hidden ${index === 0 ? "border-destructive/50" : ""}`}>
+                      {index === 0 && (
+                        <div className="bg-destructive px-3 py-1 text-center text-xs font-medium text-destructive-foreground">
+                          Urgente
                         </div>
+                      )}
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="space-y-1.5">
+                            <h3 className="font-medium">{exam.titulo}</h3>
+                            <div className="flex flex-col items-start gap-1.5 text-xs text-muted-foreground">
+                              <span className="flex gap-1 " ><Clock className="h-3.5 w-3.5" /> {exam.fechaEntrega}</span>
+                              <span>{exam.materia}</span>
+                            </div>
+                          </div>
 
-                        {index === 0 ? (
-                          <AlertCircle className="h-5 w-5 text-destructive" />
-                        ) : (
-                          <Badge variant="outline" className="flex items-center gap-1 text-xs">
-                            Próximo
-                            <ExternalLink className="h-3 w-3" />
-                          </Badge>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
+                          {index === 0 ? (
+                            <AlertCircle className="h-5 w-5 text-destructive" />
+                          ) : (
+                            <Badge variant="outline" className="flex items-center gap-1 text-xs">
+                              Próximo
+                              <ExternalLink className="h-3 w-3" />
+                            </Badge>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
             </div>
           </ScrollArea>
         )}
@@ -108,7 +110,7 @@ export default function Header({ exams = [] }) {
   const [isAdmin, setIsAdmin] = useState(false)
   const [adminToken, setAdminToken] = useState(null)
   const router = useRouter()
-  
+
   useEffect(() => {
     const token = localStorage.getItem('adminToken')
     if (token) {
@@ -116,14 +118,14 @@ export default function Header({ exams = [] }) {
       setAdminToken(token)
     }
   }, [])
-  
+
   const handleLogout = () => {
     localStorage.removeItem('adminToken')
     setIsAdmin(false)
     setAdminToken(null)
     router.push('/')
   }
-  
+
   return null
 }
 
