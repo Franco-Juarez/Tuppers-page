@@ -1,5 +1,5 @@
 export async function GET() {
-  try {    
+  try {
     const inflationData = [
       { month: "Apr", inflation: 8.8 },
       { month: "May", inflation: 4.2 },
@@ -12,6 +12,7 @@ export async function GET() {
       { month: "Dic", inflation: 2.7 },
       { month: "Ene", inflation: 2.2 },
       { month: "Feb", inflation: 2.4 },
+      { month: "Mar", inflation: 3.7 }
     ];
 
     // Calculate accumulated inflation
