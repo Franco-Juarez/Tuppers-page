@@ -128,13 +128,18 @@ export default function PaginaMateria ({ params }) {
         <header className="mb-8">
           <div className="flex flex-col-reverse items-start lg:items-center lg:flex-row justify-between gap-4">
             <h1 className="text-3xl font-bold tracking-tight">{materia.nombre || 'Materia'}</h1>
-            <div>
+            <div className="flex items-center gap-2">
               <Button className='p-0 md:p-2' asChild size="sm">
                 <Link href={`${materia.linkZoom}`} target="_blank" className="flex items-center gap-2 p-4">
                   <Video className="mr-1 h-4 w-4" />
                   Clase virtual 
                 </Link>
               </Button>
+              {idMateria === "3" && (
+                <Badge variant="secondary" className="ml-2">
+                  ID Reunión: 704360
+                </Badge>
+              )}
             </div>
           </div>
           <p className="text-muted-foreground mt-2">{materia.descripcion}</p>

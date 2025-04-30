@@ -46,7 +46,7 @@ export function DashboardHeader({ fechaFormateada, loading, exams = [] }) {
               <p>Cargando exámenes...</p>
             </div>
           </div>
-        ) : exams.length === 0 ? (
+        ) : exams.filter(exam => new Date(exam.fechaEntrega) >= new Date()).length === 0 ? (
           <div className="focus::border-none flex h-24 items-center justify-center rounded-md border border-dashed bg-muted/50">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Calendar className="h-5 w-5" />
@@ -57,6 +57,7 @@ export function DashboardHeader({ fechaFormateada, loading, exams = [] }) {
           <ScrollArea className="md:max-h-[330px] pb-2">
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
               {exams
+                .filter(exam => new Date(exam.fechaEntrega) >= new Date())
                 .sort((a, b) => new Date(a.fechaEntrega) - new Date(b.fechaEntrega))
                 .map((exam, index) => (
                   <Link
