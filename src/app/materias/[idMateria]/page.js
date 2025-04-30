@@ -137,7 +137,7 @@ export default function PaginaMateria ({ params }) {
               </Button>
               {idMateria === "3" && (
                 <Badge variant="secondary" className="ml-2">
-                  ID Reunión: 704360
+                  Código de acceso: 704360
                 </Badge>
               )}
             </div>
