@@ -9,7 +9,9 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
-export function DashboardHeader({ fechaFormateada, loading, exams = [] }) {
+export function DashboardHeader ({ fechaFormateada, loading, exams = [] }) {
+
+  const examenesVigentes = exams.filter(exam => new Date(exam.fechaEntrega) >= new Date()).length;
 
   return (
     <div className="space-y-6 rounded-lg border bg-card p-6 shadow-sm">
@@ -34,7 +36,8 @@ export function DashboardHeader({ fechaFormateada, loading, exams = [] }) {
           <h2 className="text-lg font-semibold">Próximos Exámenes</h2>
           {exams.length > 0 && (
             <Badge variant="secondary" className="font-normal">
-              {exams.length} {exams.length === 1 ? "examen" : "exámenes"}
+              {examenesVigentes}
+              {exams.length === 1 ? "examen" : "exámenes"}
             </Badge>
           )}
         </div>
@@ -46,7 +49,7 @@ export function DashboardHeader({ fechaFormateada, loading, exams = [] }) {
               <p>Cargando exámenes...</p>
             </div>
           </div>
-        ) : exams.filter(exam => new Date(exam.fechaEntrega) >= new Date()).length === 0 ? (
+        ) : examenesVigentes === 0 ? (
           <div className="focus::border-none flex h-24 items-center justify-center rounded-md border border-dashed bg-muted/50">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Calendar className="h-5 w-5" />
@@ -59,7 +62,7 @@ export function DashboardHeader({ fechaFormateada, loading, exams = [] }) {
               {exams
                 .filter(exam => new Date(exam.fechaEntrega) >= new Date())
                 .sort((a, b) => new Date(a.fechaEntrega) - new Date(b.fechaEntrega))
-                .slice(0,5)
+                .slice(0, 5)
                 .map((exam, index) => (
                   <Link
                     key={index}
@@ -104,7 +107,7 @@ export function DashboardHeader({ fechaFormateada, loading, exams = [] }) {
   )
 }
 
-export default function Header({ exams = [] }) {
+export default function Header ({ exams = [] }) {
   const [isOpen, setIsOpen] = useState(false)
   const [isExamsOpen, setIsExamsOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
