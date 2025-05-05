@@ -59,6 +59,7 @@ export function DashboardHeader({ fechaFormateada, loading, exams = [] }) {
               {exams
                 .filter(exam => new Date(exam.fechaEntrega) >= new Date())
                 .sort((a, b) => new Date(a.fechaEntrega) - new Date(b.fechaEntrega))
+                .slice(0,5)
                 .map((exam, index) => (
                   <Link
                     key={index}
