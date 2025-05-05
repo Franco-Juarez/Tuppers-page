@@ -37,7 +37,7 @@ export function DashboardHeader ({ fechaFormateada, loading, exams = [] }) {
           {exams.length > 0 && (
             <Badge variant="secondary" className="font-normal">
               {examenesVigentes}
-              {exams.length === 1 ? "examen" : "exámenes"}
+              {exams.length === 1 ? " examen" : " exámenes"}
             </Badge>
           )}
         </div>
