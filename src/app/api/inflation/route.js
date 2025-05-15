@@ -13,6 +13,7 @@ export async function GET() {
       { month: "Ene", inflation: 2.2 },
       { month: "Feb", inflation: 2.4 },
       { month: "Mar", inflation: 3.7 }
+      { month: "Apr", inflation: 2.8 }
     ];
 
     // Calculate accumulated inflation
